@@ -5,8 +5,8 @@ using UnityEngine;
 public class BubbleGrid : MonoBehaviour
 {
     public GameObject bubblePrefab;  // Assign the bubble prefab in the inspector
-    public int rows = 4;             // Number of rows
-    public int columns = 8;             // Number of columns
+    public int rows = 9;             // Number of rows
+    public int columns = 7;             // Number of columns
     public float bubbleSize = 1f;  // Spacing between bubbles
     public Vector2 startPosition = new Vector2(-3.2f, 3.5f);
 
@@ -24,11 +24,12 @@ public class BubbleGrid : MonoBehaviour
             for (int col = 0; col < columns; col++)
             {
                 // Apply hexagonal offset
-                float xOffset = (row % 2 == 0) ? 0 : bubbleSize / 2;
+                //float xOffset = (row % 2 == 0) ? 0 : bubbleSize / 2;
 
                 // Calculate position
                 Vector2 spawnPos = new Vector2(
-                    startPosition.x + col * bubbleSize + xOffset,
+                    //startPosition.x + col * bubbleSize + xOffset,
+                    startPosition.x + col * bubbleSize,
                     startPosition.y - row * (bubbleSize * 0.85f) // Adjust vertical spacing
                 );
 
@@ -41,8 +42,14 @@ public class BubbleGrid : MonoBehaviour
 
     public Vector2 GetNearestGridPosition(Vector2 position)
     {
-        float x = Mathf.Round(position.x / bubbleSize) * bubbleSize;
+        /*float x = Mathf.Round((position.x / bubbleSize) * bubbleSize);
+        x -= (Mathf.Round(position.y / bubbleSize) % 2 == 0) ? 0 : bubbleSize/2;
         float y = Mathf.Round(position.y / bubbleSize) * bubbleSize;
+        GeneralMaths.RoundValue(position.y);*/
+        float x = GeneralMaths.RoundValue((position.x / bubbleSize) * bubbleSize);
+        x -= (GeneralMaths.RoundValue(position.y / bubbleSize) % 2 == 0) ? 0 : bubbleSize/2;
+        float y = GeneralMaths.RoundValue(position.y / bubbleSize) * bubbleSize;
         return new Vector2(x, y);
+        
     }
 }
