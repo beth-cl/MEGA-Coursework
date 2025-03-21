@@ -6,6 +6,8 @@ using UnityEngine;
 public class Bubble : MonoBehaviour
 {
     public int RandInt;
+
+    public int BubbleShootID;
     
     Renderer BubbleRenderer;
 
@@ -56,7 +58,7 @@ public class Bubble : MonoBehaviour
             GetComponent<Rigidbody2D>().velocity = Vector2.zero; // Stop movement
             GetComponent<Rigidbody2D>().isKinematic = true;      // Fix in place
         }
-        if (collision.gameObject.CompareTag("BubbleBin")) // Replace with the relevant tag
+        else if (collision.gameObject.CompareTag("BubbleBin")) // Replace with the relevant tag
         {
             Destroy(gameObject); // Destroys the object this script is attached to
         }
