@@ -19,9 +19,9 @@ public class BubbleGrid : MonoBehaviour
 
     void CreateGrid()
     {
-        for (int row = 0; row < rows; row++) //for every row
+        for (int row = 0; row < rows; row++)
         {
-            for (int col = 0; col < columns; col++) // for every column in the row
+            for (int col = 0; col < columns; col++)
             {
                 // Apply hexagonal offset
                 //float xOffset = (row % 2 == 0) ? 0 : bubbleSize / 2;
@@ -46,8 +46,6 @@ public class BubbleGrid : MonoBehaviour
         x -= (Mathf.Round(position.y / bubbleSize) % 2 == 0) ? 0 : bubbleSize/2;
         float y = Mathf.Round(position.y / bubbleSize) * bubbleSize;
         GeneralMaths.RoundValue(position.y);*/
-
-
         float x = GeneralMaths.RoundValue((position.x / bubbleSize) * bubbleSize);
         x -= (GeneralMaths.RoundValue(position.y / bubbleSize) % 2 == 0) ? 0 : bubbleSize/2;
         float y = GeneralMaths.RoundValue(position.y / bubbleSize) * bubbleSize;
