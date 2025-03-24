@@ -12,17 +12,10 @@ public class Bubble : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GameObject GOfakebubble = GameObject.Find("FakeBubble");
-        FakeBubble fakeBubble = GOfakebubble.GetComponent<FakeBubble>();
-        //FakeBubble fakebubble = FakeBubble.GetComponent<FakeBubble>();
-        //RandInt = UnityEngine.Random.Range(0,3);
+        RandInt = UnityEngine.Random.Range(0,3);
         BubbleRenderer = GetComponent<Renderer>();
         //Debug.Log(RandInt);
-        //RandomBubble(RandInt);
-        int currentColor = fakeBubble.RandInt;
-        Color color = FakeBubble.RandomBubble(currentColor);
-        BubbleRenderer.material.color = color;
-        fakeBubble.newbubblecolor = true;
+        RandomBubble(RandInt);
     }
 
     // Update is called once per frame
@@ -31,7 +24,7 @@ public class Bubble : MonoBehaviour
         
     }
 
-    /*void RandomBubble(int RandInt)
+    void RandomBubble(int RandInt)
     {
         Color BubbleType;
 
@@ -52,7 +45,7 @@ public class Bubble : MonoBehaviour
         }
 
         BubbleRenderer.material.color = BubbleType;
-    }*/
+    }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
