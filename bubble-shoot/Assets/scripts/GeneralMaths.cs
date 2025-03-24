@@ -34,4 +34,13 @@ public class GeneralMaths : MonoBehaviour
 
         return roundvalue;
     }
+
+    public int roundvalue2(float value)
+    {
+        int roundedval=0;
+        /*truncate the float to get an int without the decimal points,
+         * take the modulo of the number to just get the decimal, if its .5 or more add else subtract 1 */
+
+        return roundedval;
+    }
 }
