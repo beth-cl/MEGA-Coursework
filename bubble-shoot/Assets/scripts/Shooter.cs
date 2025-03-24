@@ -8,6 +8,12 @@ public class Shooter : MonoBehaviour
     public GameObject BubblePrefab;
     public Vector2 BubbleSpawn;
     public float ShootSpeed = 1f;
+
+    public bool BubbleInSpawn = false; // is there a bubble in the spawn
+
+    Rigidbody rb;
+
+    GameObject newBubble;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,17 +23,26 @@ public class Shooter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (BubbleInSpawn == false)
+        {
+            newBubble = Instantiate(BubblePrefab, BubbleSpawn, Quaternion.identity); //instantiate new bubble
+            Rigidbody2D rb = newBubble.GetComponent<Rigidbody2D>();
+            rb.gravityScale = 0; // make sure the bubble doesn't fall
+            BubbleInSpawn = true;
+        }
         if (Input.GetMouseButtonDown(0))
         {
             shoot_bubble();
+            StartCoroutine(DelayedAction());
+
         }
     }
 
     void shoot_bubble()
     {
-        GameObject newBubble = Instantiate(BubblePrefab, BubbleSpawn, Quaternion.identity); //instantiate new bubble
+        //GameObject newBubble = Instantiate(BubblePrefab, BubbleSpawn, Quaternion.identity); //instantiate new bubble
         Rigidbody2D rb = newBubble.GetComponent<Rigidbody2D>(); //get bubbles rigidbody2d
-
+        rb.gravityScale = 1;
         rb.velocity = DirectionMaths(); // assign the vector2 to the rigid body
 
     }
@@ -50,5 +65,11 @@ public class Shooter : MonoBehaviour
         Vector2 direction = Normvector.ToUnityVector(); //convert MyVector2 to Unity Vector2
 
         return direction;
+    }
+
+    IEnumerator DelayedAction()
+    {
+        yield return new WaitForSeconds(0.5f); // Wait for 2 seconds
+        BubbleInSpawn = false;
     }
 }

@@ -222,6 +222,7 @@ MonoBehaviour:
   BubblePrefab: {fileID: 3621577629889136784, guid: c7d714f4e3cd0e649b1eb72a92d4768f, type: 3}
   BubbleSpawn: {x: 0, y: -4.3}
   ShootSpeed: 20
+  BubbleInSpawn: 0
 --- !u!1 &77645944
 GameObject:
   m_ObjectHideFlags: 0

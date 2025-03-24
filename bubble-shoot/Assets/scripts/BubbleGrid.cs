@@ -42,14 +42,16 @@ public class BubbleGrid : MonoBehaviour
 
     public Vector2 GetNearestGridPosition(Vector2 position)
     {
-        /*float x = Mathf.Round((position.x / bubbleSize) * bubbleSize);
+        float x = Mathf.Round((position.x / bubbleSize) * bubbleSize);
         x -= (Mathf.Round(position.y / bubbleSize) % 2 == 0) ? 0 : bubbleSize/2;
         float y = Mathf.Round(position.y / bubbleSize) * bubbleSize;
-        GeneralMaths.RoundValue(position.y);*/
-        float x = GeneralMaths.RoundValue((position.x / bubbleSize) * bubbleSize);
+        GeneralMaths.RoundValue(position.y);
+        return new Vector2(x, y);
+
+        /*float x = GeneralMaths.RoundValue((position.x / bubbleSize) * bubbleSize);
         x -= (GeneralMaths.RoundValue(position.y / bubbleSize) % 2 == 0) ? 0 : bubbleSize/2;
         float y = GeneralMaths.RoundValue(position.y / bubbleSize) * bubbleSize;
-        return new Vector2(x, y);
-        
+        return new Vector2(x, y);*/
+
     }
 }

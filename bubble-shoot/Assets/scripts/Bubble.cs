@@ -60,5 +60,22 @@ public class Bubble : MonoBehaviour
         {
             Destroy(gameObject); // Destroys the object this script is attached to
         }
+
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            Rigidbody2D rb = GetComponent<Rigidbody2D>();
+
+            // Get the object's current velocity
+            Vector2 velocity = rb.velocity;
+
+            // Get the normal of the surface we collided with
+            Vector2 normal = collision.contacts[0].normal;
+
+            // Calculate the reflected velocity
+            Vector2 reflectedVelocity = Vector2.Reflect(velocity, normal);
+
+            // Apply the new velocity
+            GetComponent<Rigidbody2D>().velocity = reflectedVelocity;
+        }
     }
 }
