@@ -5,19 +5,19 @@ using UnityEngine;
 
 public class FakeBubble : MonoBehaviour
 {
-    public int RandInt;
-    public bool newbubblecolor;
+    public int RandInt; //initialise random number for colour
+    public bool newbubblecolor; // bool to check if new bubble colour is needed
 
-    Renderer BubbleRenderer;
+    Renderer BubbleRenderer; // renderer
+
     // Start is called before the first frame update
     void Start()
     {
-        
-        RandInt = UnityEngine.Random.Range(0, 3);
-        BubbleRenderer = GetComponent<Renderer>();
+        RandInt = UnityEngine.Random.Range(0, 3); // random number between 0 and 3
+        BubbleRenderer = GetComponent<Renderer>(); // find renderer
         //Debug.Log(RandInt);
         //RandomBubble(RandInt);
-        BubbleRenderer.material.color = RandomBubble(RandInt);
+        BubbleRenderer.material.color = RandomBubble(RandInt); // change colour to be the equivalent of the switchcase
     }
 
     // Update is called once per frame
