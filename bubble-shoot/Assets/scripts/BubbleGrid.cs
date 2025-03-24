@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class BubbleGrid : MonoBehaviour
 {
+    //int RandInt;
+
     public GameObject bubblePrefab;  // Assign the bubble prefab in the inspector
     public int rows = 9;             // Number of rows
     public int columns = 7;             // Number of columns
@@ -14,11 +16,15 @@ public class BubbleGrid : MonoBehaviour
 
     void Start()
     {
+        //RandInt = UnityEngine.Random.Range(0, 3);
         CreateGrid();
     }
 
     void CreateGrid()
     {
+        GameObject GOfakebubble = GameObject.Find("FakeBubble");
+        FakeBubble fakeBubble = GOfakebubble.GetComponent<FakeBubble>();
+
         for (int row = 0; row < rows; row++)
         {
             for (int col = 0; col < columns; col++)
@@ -36,6 +42,7 @@ public class BubbleGrid : MonoBehaviour
                 // Spawn bubble
                 GameObject newBubble = Instantiate(bubblePrefab, spawnPos, Quaternion.identity);
                 newBubble.transform.parent = transform;  // Organize hierarchy
+                fakeBubble.newbubblecolor = true;
             }
         }
     }
