@@ -36,6 +36,7 @@ public class Shooter : MonoBehaviour
             StartCoroutine(DelayedAction());
 
         }
+
     }
 
     void shoot_bubble()
@@ -45,6 +46,18 @@ public class Shooter : MonoBehaviour
         rb.gravityScale = 1;
         rb.velocity = DirectionMaths(); // assign the vector2 to the rigid body
 
+    }
+
+    void raycastLine()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit))
+        {
+            // Draw a line from the ray's origin to the hit point
+            Debug.DrawLine(ray.origin, hit.point, Color.yellow);
+        }
     }
 
     void BubbleDirectionRender()

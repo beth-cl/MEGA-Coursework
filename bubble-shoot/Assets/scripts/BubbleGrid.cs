@@ -38,6 +38,13 @@ public class BubbleGrid : MonoBehaviour
                 newBubble.transform.parent = transform;  // Organize hierarchy
             }
         }
+
+        // -26 is the max level of the grid
+    }
+
+    void checkforconnectingbubbles()
+    {
+
     }
 
     public Vector2 GetNearestGridPosition(Vector2 position)
@@ -47,11 +54,6 @@ public class BubbleGrid : MonoBehaviour
         float y = Mathf.Round(position.y / bubbleSize) * bubbleSize;
         GeneralMaths.RoundValue(position.y);
         return new Vector2(x, y);
-
-        /*float x = GeneralMaths.RoundValue((position.x / bubbleSize) * bubbleSize);
-        x -= (GeneralMaths.RoundValue(position.y / bubbleSize) % 2 == 0) ? 0 : bubbleSize/2;
-        float y = GeneralMaths.RoundValue(position.y / bubbleSize) * bubbleSize;
-        return new Vector2(x, y);*/
 
     }
 }
