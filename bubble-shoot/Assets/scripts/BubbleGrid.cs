@@ -10,7 +10,7 @@ public class BubbleGrid : MonoBehaviour
     public float bubbleSize = 1f;  // Spacing between bubbles
     public Vector2 startPosition = new Vector2(-3.2f, 3.5f);
 
-    private List<GameObject> bubbles = new List<GameObject>(); // Stores bubbles in the grid
+    public List<GameObject> bubbles = new List<GameObject>(); // Stores bubbles in the grid
 
     void Start()
     {
@@ -36,6 +36,7 @@ public class BubbleGrid : MonoBehaviour
                 // Spawn bubble
                 GameObject newBubble = Instantiate(bubblePrefab, spawnPos, Quaternion.identity);
                 newBubble.transform.parent = transform;  // Organize hierarchy
+                bubbles.Add(newBubble); // Add to list
             }
         }
 
@@ -49,11 +50,27 @@ public class BubbleGrid : MonoBehaviour
 
     public Vector2 GetNearestGridPosition(Vector2 position)
     {
+        //bool bubbleinclosest;
+        float y = Mathf.Round(position.y / bubbleSize) * bubbleSize;
+        //Mathf.Round(position.y);
         float x = Mathf.Round((position.x / bubbleSize) * bubbleSize);
         x -= (Mathf.Round(position.y / bubbleSize) % 2 == 0) ? 0 : bubbleSize/2;
-        float y = Mathf.Round(position.y / bubbleSize) * bubbleSize;
-        GeneralMaths.RoundValue(position.y);
+        
+
+        /*for (int i = 0; i < bubbles.Count; i++)
+        {
+            if (bubbles[i].transform.position == (Vector3)position)
+            {
+                bubbleinclosest = true;
+            }
+         }*/
+
+
         return new Vector2(x, y);
+    }
+
+    public void FindClosestGridPosition(Vector2 position)
+    {
 
     }
 }

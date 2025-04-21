@@ -23,6 +23,8 @@ public class Shooter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        GameObject Panel = GameObject.Find("Panel");
+
         if (BubbleInSpawn == false)
         {
             newBubble = Instantiate(BubblePrefab, BubbleSpawn, Quaternion.identity); //instantiate new bubble
@@ -30,11 +32,19 @@ public class Shooter : MonoBehaviour
             rb.gravityScale = 0; // make sure the bubble doesn't fall
             BubbleInSpawn = true;
         }
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && Panel == null)
         {
             shoot_bubble();
+            newBubble.GetComponent<Bubble>().wasFired = true;
             StartCoroutine(DelayedAction());
 
+        }
+        if (Panel != null)
+        {
+            BubbleInSpawn = false; // stop shooting
+            newBubble.GetComponent<Rigidbody2D>().velocity = Vector2.zero; // stop the bubble
+            newBubble.GetComponent<Rigidbody2D>().freezeRotation = true; // freeze the bubble
+            //Destroy(newBubble); // destroy the bubble
         }
 
     }
@@ -82,7 +92,14 @@ public class Shooter : MonoBehaviour
 
     IEnumerator DelayedAction()
     {
-        yield return new WaitForSeconds(0.5f); // Wait for 2 seconds
+        yield return new WaitForSeconds(0.2f); // Wait for 2 seconds
         BubbleInSpawn = false;
+    }
+
+    public void GameOverStopShooting()
+    {
+        
+        
+
     }
 }

@@ -7,7 +7,8 @@ using UnityEngine.VFX;
 public class Bubble : MonoBehaviour
 {
     public int RandInt;
-    
+    public bool wasFired = false;
+
     Renderer BubbleRenderer;
 
     // Start is called before the first frame update
@@ -23,7 +24,7 @@ public class Bubble : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        TryPopBubbles();
+        
         gameover();
     }
 
@@ -65,6 +66,12 @@ public class Bubble : MonoBehaviour
             GetComponent<Rigidbody2D>().velocity = Vector2.zero;
             GetComponent<Rigidbody2D>().freezeRotation = true;
 
+            if (wasFired)
+            {
+                StartCoroutine((IEnumerator)DelayedPopBubbles());
+            }
+            TryPopBubbles(); // Call the method to check for matching bubbles
+
         }
         if (collision.gameObject.CompareTag("BubbleBin")) // Replace with the relevant tag
         {
@@ -91,15 +98,24 @@ public class Bubble : MonoBehaviour
 
     void gameover()
     {
-        //Debug.Log(transform.position.y);
         GameObject GOshooter = GameObject.Find("Spawner");
         Shooter shooter = GOshooter.GetComponent<Shooter>();
 
         if (shooter.BubbleInSpawn == true && transform.position.y == -3)
         {
             Debug.Log("gameover");
-        }
 
+            GameObject panel = GameObject.Find("EventSystem");
+            if (panel != null)
+            {
+                GameOver panelScript = panel.GetComponent<GameOver>();
+                if (panelScript != null)
+                {
+                    panelScript.GameOverFlag = true;
+
+                }
+            }
+        }
     }
 
 
@@ -108,7 +124,7 @@ public class Bubble : MonoBehaviour
     public List<Bubble> GetConnectedBubbles()
     {
         List<Bubble> connectedBubbles = new List<Bubble>();
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 0.1f);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 0.8f);
 
         foreach (Collider2D hit in hits)
         {
@@ -157,6 +173,11 @@ public class Bubble : MonoBehaviour
                 Destroy(bubble.gameObject);
             }
         }
+    }
+    IEnumerable DelayedPopBubbles()
+    {
+        yield return new WaitForSeconds(0.1f); // Wait 0.1 seconds
+        TryPopBubbles();
     }
 
 
