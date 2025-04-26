@@ -14,11 +14,6 @@ public class Shooter : MonoBehaviour
     Rigidbody rb;
 
     GameObject newBubble;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
@@ -44,7 +39,7 @@ public class Shooter : MonoBehaviour
             BubbleInSpawn = false; // stop shooting
             newBubble.GetComponent<Rigidbody2D>().velocity = Vector2.zero; // stop the bubble
             newBubble.GetComponent<Rigidbody2D>().freezeRotation = true; // freeze the bubble
-            //Destroy(newBubble); // destroy the bubble
+            Destroy(newBubble); // destroy the bubble
         }
 
     }
@@ -56,23 +51,18 @@ public class Shooter : MonoBehaviour
         rb.gravityScale = 1;
         rb.velocity = DirectionMaths(); // assign the vector2 to the rigid body
 
+
+
     }
 
     void raycastLine()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit))
         {
-            // Draw a line from the ray's origin to the hit point
-            Debug.DrawLine(ray.origin, hit.point, Color.yellow);
+            Debug.DrawLine(ray.origin, hit.point, Color.yellow);// Draw a line from the ray's origin to the hit point
         }
-    }
-
-    void BubbleDirectionRender()
-    {
-
     }
 
     public Vector2 DirectionMaths()
@@ -94,12 +84,5 @@ public class Shooter : MonoBehaviour
     {
         yield return new WaitForSeconds(0.2f); // Wait for 2 seconds
         BubbleInSpawn = false;
-    }
-
-    public void GameOverStopShooting()
-    {
-        
-        
-
     }
 }

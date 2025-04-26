@@ -468,7 +468,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 109.98764}
+  m_AnchoredPosition: {x: 0, y: 35}
   m_SizeDelta: {x: 215.386, y: 74.02469}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &255898288
@@ -1648,6 +1648,7 @@ MonoBehaviour:
   columns: 7
   bubbleSize: 1
   startPosition: {x: -3, y: 3.625}
+  bubbles: []
 --- !u!4 &1681600789
 Transform:
   m_ObjectHideFlags: 0
@@ -2014,11 +2015,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 11751697}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -320}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 7.693, y: 0}
   m_SizeDelta: {x: 200, y: 50}
-  m_Pivot: {x: 0.5, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2119984043
 MonoBehaviour:
   m_ObjectHideFlags: 0

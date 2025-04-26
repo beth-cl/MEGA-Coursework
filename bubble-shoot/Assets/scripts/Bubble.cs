@@ -2,12 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.VFX;
 
 public class Bubble : MonoBehaviour
 {
     public int RandInt;
     public bool wasFired = false;
+    public List<Bubble> currentconnectedbubbles = new List<Bubble>();
+
 
     Renderer BubbleRenderer;
 
@@ -16,7 +17,6 @@ public class Bubble : MonoBehaviour
     {
         RandInt = UnityEngine.Random.Range(0,3);
         BubbleRenderer = GetComponent<Renderer>();
-        //Debug.Log(RandInt);
         Color BubbleColour = RandomBubble(RandInt);
         BubbleRenderer.material.color = BubbleColour;
     }
@@ -24,7 +24,7 @@ public class Bubble : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        FindObjectOfType<BubbleGrid>().RemoveFloatingBubbles();
         gameover();
     }
 
@@ -53,47 +53,53 @@ public class Bubble : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
+        BubbleGrid bubbleGrid = FindObjectOfType<BubbleGrid>();
         if (collision.gameObject.CompareTag("Bubble") || collision.gameObject.CompareTag("Celing"))
         {
-            Vector2 snappedPosition = FindObjectOfType<BubbleGrid>().GetNearestGridPosition(transform.position);
-            /*if ((Vector2)snappedPosition == (Vector2)collision.transform.position)
-            {
-                snappedPosition = FindObjectOfType<BubbleGrid>().GetNearestGridPosition(transform.position + new Vector3(0.5f, 0.5f, 0));
-            }*/
+            Vector2 snappedPosition = bubbleGrid.GetNearestGridPosition(transform.position);
             transform.position = snappedPosition;
-            GetComponent<Rigidbody2D>().velocity = Vector2.zero; // Stop movement
-            GetComponent<Rigidbody2D>().isKinematic = true;      // Fix in place
-            GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+            GetComponent<Rigidbody2D>().velocity = Vector2.zero; // Stop movement  
+            GetComponent<Rigidbody2D>().isKinematic = true;      // Fix in place  
             GetComponent<Rigidbody2D>().freezeRotation = true;
 
+            if(!bubbleGrid.bubbles.Contains(gameObject))
+            {
+                bubbleGrid.bubbles.Add(gameObject); // Add the bubble to the grid
+            }
             if (wasFired)
             {
-                StartCoroutine((IEnumerator)DelayedPopBubbles());
+                TryPopBubbles(); // Call the method to check for matching bubbles  
             }
-            TryPopBubbles(); // Call the method to check for matching bubbles
-
         }
-        if (collision.gameObject.CompareTag("BubbleBin")) // Replace with the relevant tag
+        if (collision.gameObject.CompareTag("BubbleBin")) // Replace with the relevant tag  
         {
-            Destroy(gameObject); // Destroys the object this script is attached to
+            Destroy(gameObject); // Destroys the object this script is attached to  
         }
 
         if (collision.gameObject.CompareTag("Wall"))
         {
+            Debug.Log("Wall Collision Detected");
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
 
-            // Get the object's current velocity
-            Vector2 velocity = rb.velocity;
+            Vector2 velocity = rb.velocity; // Get the object's current velocity  
 
-            // Get the normal of the surface we collided with
-            Vector2 normal = collision.contacts[0].normal;
+            if (velocity.magnitude > 0.01f) // Only reflect if moving fast enough
+            {
+                MyVector2 myVelocity = new MyVector2(velocity.x, velocity.y); // MyVector2 of the velocity  
+                Vector2 normal = collision.contacts[0].normal; // Get the normal of the surface we collided with  
+                MyVector2 myNormal = new MyVector2(normal.x, normal.y); // MyVector2 of normal  
 
-            // Calculate the reflected velocity
-            Vector2 reflectedVelocity = Vector2.Reflect(velocity, normal);
+                MyVector2 MyReflectedVelocity = MyVector2.ReflectVector(myVelocity, myNormal); // Reflect velocity  
+                Vector2 reflectedVelocity = MyReflectedVelocity.ToUnityVector(); // Convert back to Vector2  
 
-            // Apply the new velocity
-            GetComponent<Rigidbody2D>().velocity = reflectedVelocity;
+                rb.velocity = reflectedVelocity; // Apply reflected velocity
+            }
+            else
+            {
+                Debug.LogWarning("Velocity too small, skipping reflection.");
+            }
         }
+
     }
 
     void gameover()
@@ -146,9 +152,11 @@ public class Bubble : MonoBehaviour
         toCheck.Enqueue(this);
         matchingBubbles.Add(this);
 
+
         while (toCheck.Count > 0)
         {
             Bubble current = toCheck.Dequeue();
+
             foreach (Bubble neighbor in current.GetConnectedBubbles())
             {
                 if (!matchingBubbles.Contains(neighbor))
@@ -172,13 +180,66 @@ public class Bubble : MonoBehaviour
             {
                 Destroy(bubble.gameObject);
             }
+            
         }
+
     }
     IEnumerable DelayedPopBubbles()
     {
         yield return new WaitForSeconds(0.1f); // Wait 0.1 seconds
-        TryPopBubbles();
+
+        if (wasFired)
+        {
+            TryPopBubbles();
+
+        }
     }
 
+    public void RemoveFloatingBubbles()
+    {
+        // Step 1: Find all bubbles that are still connected to the ceiling
+        HashSet<Bubble> connectedToCeiling = new HashSet<Bubble>();
+        Collider2D[] ceilingBubbles = Physics2D.OverlapCircleAll(GameObject.FindGameObjectWithTag("Celing").transform.position, 10f);
+
+        foreach (Collider2D col in ceilingBubbles)
+        {
+            Bubble bubble = col.GetComponent<Bubble>();
+            if (bubble != null)
+            {
+                FloodFillConnected(bubble, connectedToCeiling);
+            }
+        }
+
+        // Step 2: Destroy all bubbles not in connectedToCeiling
+        Bubble[] allBubbles = FindObjectsOfType<Bubble>();
+        foreach (Bubble bubble in allBubbles)
+        {
+            if (!connectedToCeiling.Contains(bubble))
+            {
+                Destroy(bubble.gameObject);
+            }
+        }
+    }
+
+    // Helper flood fill
+    private void FloodFillConnected(Bubble start, HashSet<Bubble> connectedSet)
+    {
+        Queue<Bubble> queue = new Queue<Bubble>();
+        queue.Enqueue(start);
+        connectedSet.Add(start);
+
+        while (queue.Count > 0)
+        {
+            Bubble current = queue.Dequeue();
+            foreach (Bubble neighbor in current.GetConnectedBubbles())
+            {
+                if (!connectedSet.Contains(neighbor))
+                {
+                    connectedSet.Add(neighbor);
+                    queue.Enqueue(neighbor);
+                }
+            }
+        }
+    }
 
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
 
 public class MyVector2
@@ -15,7 +16,7 @@ public class MyVector2
         this.y = y;
     }
 
-    //Create a static function that takes in two MyVector3 objects, adds them together, and returns the resulting vector
+    //Create a static function that takes in two MyVector2 objects, adds them together, and returns the resulting vector
     public static MyVector2 AddingVectors2(MyVector2 vectorA, MyVector2 vectorB)
     {
         MyVector2 vectorC = new MyVector2(0f, 0f);
@@ -26,7 +27,7 @@ public class MyVector2
         return vectorC;
     }
 
-    //Create a static function that takes in two MyVector3 objects, and subtracts them, and returns the resulting vector
+    //Create a static function that takes in two MyVector2 objects, and subtracts them, and returns the resulting vector
     public static MyVector2 SubtractingVector2(MyVector2 vectorA, MyVector2 vectorB)
     {
         MyVector2 vectorC = new MyVector2(0f, 0f);
@@ -37,9 +38,9 @@ public class MyVector2
         return vectorC;
     }
 
-    public Vector2 ToUnityVector()
+    public UnityEngine.Vector2 ToUnityVector()
     {
-        Vector2 vectorC = new Vector2();
+        UnityEngine.Vector2 vectorC = new UnityEngine.Vector2();
 
         vectorC.x = x;
         vectorC.y = y;
@@ -96,6 +97,31 @@ public class MyVector2
         vector_normalised = Dividing_Vectors(vectorA, vectorA.V2_Length());
 
         return vector_normalised;
+    }
+    public static float DotProduct(MyVector2 vectorA, MyVector2 vectorB, bool should_normalise = true)
+    {
+        float dotProduct = 0f;
+
+        MyVector2 vectorA_normalised = new MyVector2(0f, 0f);
+        MyVector2 vectorB_normalised = new MyVector2(0f, 0f);
+
+        if (should_normalise)
+        {
+            vectorA_normalised = Normalising_Vectors(vectorA);
+            vectorB_normalised = Normalising_Vectors(vectorB);
+        }
+
+        dotProduct = (vectorA_normalised.x * vectorB_normalised.x + vectorA_normalised.y * vectorB_normalised.y);
+
+        return dotProduct;
+    }
+
+    public static MyVector2 ReflectVector(MyVector2 vector, MyVector2 normal)
+    {
+        float dot = DotProduct(vector, normal);// Calculate the dot product of the vector and the normal
+        MyVector2 reflected = SubtractingVector2(vector, Scaling_Vectors(normal, 2 * dot));// Calculate the reflection vector
+
+        return reflected;
     }
 
 }

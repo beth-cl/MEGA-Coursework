@@ -101,6 +101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RandInt: 0
+  wasFired: 0
 --- !u!50 &2450640714146020105
 Rigidbody2D:
   serializedVersion: 4
