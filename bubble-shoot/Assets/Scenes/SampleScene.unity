@@ -1644,11 +1644,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bubblePrefab: {fileID: 3621577629889136784, guid: c7d714f4e3cd0e649b1eb72a92d4768f, type: 3}
-  rows: 3
+  rows: 8
   columns: 7
   bubbleSize: 1
   startPosition: {x: -3, y: 3.625}
-  bubbles: []
 --- !u!4 &1681600789
 Transform:
   m_ObjectHideFlags: 0

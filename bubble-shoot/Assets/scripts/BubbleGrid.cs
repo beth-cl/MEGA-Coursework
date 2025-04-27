@@ -5,77 +5,100 @@ using UnityEngine;
 public class BubbleGrid : MonoBehaviour
 {
     public GameObject bubblePrefab;  // Assign the bubble prefab in the inspector
-    public int rows = 9;             // Number of rows
+    public int rows = 8;             // Number of rows
     public int columns = 7;             // Number of columns
     public float bubbleSize = 1f;  // Spacing between bubbles
     public Vector2 startPosition = new Vector2(-3.2f, 3.5f);
-    Vector2 celingvector;
-
-    //public List<GameObject> bubbles = new List<GameObject>(); // Stores bubbles in the grid
     public GameObject[,] bubbles; // 2D array to store bubbles
 
     void Start()
     {
-        celingvector = GameObject.FindGameObjectWithTag("Celing").transform.position;
         CreateGrid();
     }
 
     void Update()
     {
-
+        RemoveFloatingBubbles();
     }
-
     void CreateGrid()
     {
         bubbles = new GameObject[rows, columns]; // Initialize the 2D array
-        for (int row = 0; row < rows; row++)
+        for (int row = 0; row <=3; row++)
         {
             for (int col = 0; col < columns; col++)
             {
                 // Calculate position
                 Vector2 spawnPos = new Vector2(
-                    //startPosition.x + col * bubbleSize + xOffset,
                     startPosition.x + col * bubbleSize,
-                    startPosition.y - row * (bubbleSize * 0.85f) // Adjust vertical spacing
-                );
-                // Spawn bubble
+                    startPosition.y - row * (bubbleSize * 0.85f));
                 GameObject newBubble = Instantiate(bubblePrefab, spawnPos, Quaternion.identity);
                 newBubble.transform.parent = transform;  // Organize hierarchy
-                //bubbles.Add(newBubble); // Add to list
                 bubbles[row, col] = newBubble; // Add to 2D array
             }
         }
     }
     public Vector2 GetNearestGridPosition(Vector2 position)
     {
-        //bool bubbleinclosest;
         float y = Mathf.Round(position.y / bubbleSize) * bubbleSize;
-        //Mathf.Round(position.y);
         float x = Mathf.Round((position.x / bubbleSize) * bubbleSize);
         x -= (Mathf.Round(position.y / bubbleSize) % 2 == 0) ? 0 : bubbleSize / 2;
 
         return new Vector2(x, y);
+    }
+
+    public Vector2Int GetGridCoords(Vector2 position)
+    {
+        int col = Mathf.RoundToInt((position.x - startPosition.x) / bubbleSize);
+        int row = Mathf.RoundToInt((startPosition.y - position.y) / (bubbleSize * 0.85f)); // Adjust for vertical spacing
+
+        return new Vector2Int(row, col);
+    }
+
+    // Helper flood fill
+    private void FloodFillConnected(Bubble start, HashSet<Bubble> connectedSet)
+    {
+        Queue<Bubble> queue = new Queue<Bubble>();
+        queue.Enqueue(start);
+        connectedSet.Add(start);
+
+        while (queue.Count > 0)
+        {
+            Bubble current = queue.Dequeue();
+            foreach (Bubble neighbor in current.GetConnectedBubbles())
+            {
+                if (!connectedSet.Contains(neighbor))
+                {
+                    connectedSet.Add(neighbor);
+                    queue.Enqueue(neighbor);
+                }
+            }
+        }
+    }
+
+
+    public void RemoveFromBubbleGrid(GameObject bubble)
+    {
+        BubbleGrid bubbleGrid = FindObjectOfType<BubbleGrid>();
+        Vector2Int gridCoords = bubbleGrid.GetGridCoords(bubble.transform.position);
+        bubbleGrid.bubbles[gridCoords.x, gridCoords.y] = null; // Remove the bubble from the array  
+        Debug.Log("removing bubble at: " + gridCoords);
     }
     public List<Vector2Int> GetNeighbors(Vector2Int pos)
     {
         List<Vector2Int> neighbors = new List<Vector2Int>();
         int[,] evenOffsets = new int[,] {{ 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 }, { -1, 1 }, { -1, -1 }};
         int[,] oddOffsets = new int[,]{{ 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 }, { 1, 1 }, { 1, -1 }};
-
         bool isEvenRow = pos.x % 2 == 0;
         int[,] offsets = isEvenRow ? evenOffsets : oddOffsets;
-
         for (int i = 0; i < offsets.GetLength(0); i++)
         {
             int newRow = pos.x + offsets[i, 0];
             int newCol = pos.y + offsets[i, 1];
-
             if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < columns)
             {
                 neighbors.Add(new Vector2Int(newRow, newCol));
             }
         }
-
         return neighbors;
     }
 
@@ -133,12 +156,5 @@ public class BubbleGrid : MonoBehaviour
             }
         }
     }
-
-    public void AddToGrid()
-    {
-
-    }
-
-
 }
 

@@ -21,33 +21,33 @@ public class Bubble : MonoBehaviour
         BubbleRenderer.material.color = BubbleColour;
     }
 
-    // Update is called once per frame
+    // Update is called once per frame  
     void Update()
     {
-        FindObjectOfType<BubbleGrid>().RemoveFloatingBubbles();
+        // Check if the bubble is out of bounds of the grid array  
+        BubbleGrid bubbleGrid = FindObjectOfType<BubbleGrid>();
+        Vector2Int gridCoords = bubbleGrid.GetGridCoords(transform.position);
+
+        if (gridCoords.y < 0 || gridCoords.y >= bubbleGrid.bubbles.GetLength(1))
+        {
+            Debug.LogWarning("Bubble is out of bounds and will be destroyed.");
+            Destroy(gameObject);
+        }
+
+        //FindObjectOfType<BubbleGrid>().RemoveFloatingBubbles();  
         gameover();
     }
 
     private Color RandomBubble(int RandInt)
     {
         Color BubbleType;
-
         switch (RandInt)
         {
-            case 0:
-                BubbleType = Color.green;
-                break;
-            case 1:
-                BubbleType = Color.magenta;
-                break;
-            case 2:
-                BubbleType = Color.cyan;
-                break;
-            default:
-                BubbleType = Color.white;
-                break;     
+            case 0: BubbleType = Color.green; break;
+            case 1: BubbleType = Color.magenta; break;
+            case 2: BubbleType = Color.cyan; break;
+            default: BubbleType = Color.white; break;
         }
-
         return BubbleType;
     }
 
@@ -62,13 +62,23 @@ public class Bubble : MonoBehaviour
             GetComponent<Rigidbody2D>().isKinematic = true;      // Fix in place  
             GetComponent<Rigidbody2D>().freezeRotation = true;
 
-            if(!bubbleGrid.bubbles.Contains(gameObject))
+            Vector2Int gridCoords = bubbleGrid.GetGridCoords(snappedPosition);
+            if (!bubbleGrid.bubbles[gridCoords.x, gridCoords.y]) // Check if the grid position is empty
             {
-                bubbleGrid.bubbles.Add(gameObject); // Add the bubble to the grid
+                bubbleGrid.bubbles[gridCoords.x, gridCoords.y] = gameObject; // Assign the bubble to the grid
+                Debug.Log("Bubble assigned to grid position: " + gridCoords);
             }
+            else
+            {
+                Debug.Log("Grid position already occupied");
+                //Destroy(gameObject); // Destroy the bubble if the position is occupied
+            }
+            //bubbleGrid.bubbles[gridCoords.x, gridCoords.y] = gameObject;
+
             if (wasFired)
             {
-                TryPopBubbles(); // Call the method to check for matching bubbles  
+                TryPopBubbles(); // Call the method to check for matching bubbles
+                //RemoveFloatingBubbles();
             }
         }
         if (collision.gameObject.CompareTag("BubbleBin")) // Replace with the relevant tag  
@@ -178,11 +188,10 @@ public class Bubble : MonoBehaviour
         {
             foreach (Bubble bubble in matchingBubbles)
             {
+                FindObjectOfType<BubbleGrid>().RemoveFromBubbleGrid(bubble.gameObject);
                 Destroy(bubble.gameObject);
             }
-            
         }
-
     }
     IEnumerable DelayedPopBubbles()
     {
@@ -195,51 +204,5 @@ public class Bubble : MonoBehaviour
         }
     }
 
-    public void RemoveFloatingBubbles()
-    {
-        // Step 1: Find all bubbles that are still connected to the ceiling
-        HashSet<Bubble> connectedToCeiling = new HashSet<Bubble>();
-        Collider2D[] ceilingBubbles = Physics2D.OverlapCircleAll(GameObject.FindGameObjectWithTag("Celing").transform.position, 10f);
-
-        foreach (Collider2D col in ceilingBubbles)
-        {
-            Bubble bubble = col.GetComponent<Bubble>();
-            if (bubble != null)
-            {
-                FloodFillConnected(bubble, connectedToCeiling);
-            }
-        }
-
-        // Step 2: Destroy all bubbles not in connectedToCeiling
-        Bubble[] allBubbles = FindObjectsOfType<Bubble>();
-        foreach (Bubble bubble in allBubbles)
-        {
-            if (!connectedToCeiling.Contains(bubble))
-            {
-                Destroy(bubble.gameObject);
-            }
-        }
-    }
-
-    // Helper flood fill
-    private void FloodFillConnected(Bubble start, HashSet<Bubble> connectedSet)
-    {
-        Queue<Bubble> queue = new Queue<Bubble>();
-        queue.Enqueue(start);
-        connectedSet.Add(start);
-
-        while (queue.Count > 0)
-        {
-            Bubble current = queue.Dequeue();
-            foreach (Bubble neighbor in current.GetConnectedBubbles())
-            {
-                if (!connectedSet.Contains(neighbor))
-                {
-                    connectedSet.Add(neighbor);
-                    queue.Enqueue(neighbor);
-                }
-            }
-        }
-    }
 
 }
