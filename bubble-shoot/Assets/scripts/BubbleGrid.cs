@@ -15,7 +15,6 @@ public class BubbleGrid : MonoBehaviour
     {
         CreateGrid();
     }
-
     void Update()
     {
         RemoveFloatingBubbles();
@@ -74,7 +73,6 @@ public class BubbleGrid : MonoBehaviour
             }
         }
     }
-
 
     public void RemoveFromBubbleGrid(GameObject bubble)
     {
@@ -183,4 +181,3 @@ public class BubbleGrid : MonoBehaviour
 
 
 }
-

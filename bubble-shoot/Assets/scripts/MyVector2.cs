@@ -115,8 +115,10 @@ public class MyVector2
 
     public static MyVector2 ReflectVector(MyVector2 vector, MyVector2 normal)
     {
-        float dot = DotProduct(vector, normal);// Calculate the dot product of the vector and the normal
-        MyVector2 reflected = SubtractingVector2(vector, Scaling_Vectors(normal, 2 * dot));// Calculate the reflection vector
+        //float dot = DotProduct(vector, normal);// Calculate the dot product of the vector and the normal
+        MyVector2 reflected = new MyVector2(vector.x*-1,vector.y);// Calculate the reflection vector
+        Debug.Log("velocity " + vector.x + " " + vector.y);
+        Debug.Log("reflected velocity " + reflected.x + " "+ reflected.y);
 
         return reflected;
     }
