@@ -2,20 +2,21 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Bubble : MonoBehaviour
 {
     public int RandInt;
     public bool wasFired = false;
     public List<Bubble> currentconnectedbubbles = new List<Bubble>();
-
+    public bool isFloating = false;
 
     Renderer BubbleRenderer;
 
     // Start is called before the first frame update
     void Start()
     {
-        RandInt = UnityEngine.Random.Range(0,3);
+        RandInt = UnityEngine.Random.Range(0, 3);
         BubbleRenderer = GetComponent<Renderer>();
         Color BubbleColour = RandomBubble(RandInt);
         BubbleRenderer.material.color = BubbleColour;
@@ -32,6 +33,12 @@ public class Bubble : MonoBehaviour
         {
             Debug.LogWarning("Bubble is out of bounds and will be destroyed.");
             Destroy(gameObject);
+        }
+        if (isFloating)
+        {
+            Destroy(gameObject);
+            Debug.Log("Bubble is floating");
+            transform.position = Vector2.Lerp(gridCoords, new Vector2(gridCoords.x, -5.5f), Time.deltaTime);
         }
 
         //FindObjectOfType<BubbleGrid>().RemoveFloatingBubbles();  
@@ -90,15 +97,13 @@ public class Bubble : MonoBehaviour
         {
             Debug.Log("Wall Collision Detected");
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
-
             Vector2 velocity = rb.velocity; // Get the object's current velocity  
 
             if (velocity.magnitude > 0.01f) // Only reflect if moving fast enough
             {
-                MyVector2 myVelocity = new MyVector2(velocity.x, velocity.y); // MyVector2 of the velocity  
+                MyVector2 myVelocity = new MyVector2(velocity.x, velocity.y); // MyVector2 of the velocity
                 Vector2 normal = collision.contacts[0].normal; // Get the normal of the surface we collided with  
                 MyVector2 myNormal = new MyVector2(normal.x, normal.y); // MyVector2 of normal  
-
                 MyVector2 MyReflectedVelocity = MyVector2.ReflectVector(myVelocity, myNormal); // Reflect velocity  
                 Vector2 reflectedVelocity = MyReflectedVelocity.ToUnityVector(); // Convert back to Vector2  
 
@@ -133,9 +138,6 @@ public class Bubble : MonoBehaviour
             }
         }
     }
-
-
-    // testing bubble destroy
 
     public List<Bubble> GetConnectedBubbles()
     {

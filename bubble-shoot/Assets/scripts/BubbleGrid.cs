@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
-
 public class BubbleGrid : MonoBehaviour
 {
     public GameObject bubblePrefab;  // Assign the bubble prefab in the inspector
@@ -23,7 +23,7 @@ public class BubbleGrid : MonoBehaviour
     void CreateGrid()
     {
         bubbles = new GameObject[rows, columns]; // Initialize the 2D array
-        for (int row = 0; row <=3; row++)
+        for (int row = 0; row <= 3; row++)
         {
             for (int col = 0; col < columns; col++)
             {
@@ -83,11 +83,12 @@ public class BubbleGrid : MonoBehaviour
         bubbleGrid.bubbles[gridCoords.x, gridCoords.y] = null; // Remove the bubble from the array  
         Debug.Log("removing bubble at: " + gridCoords);
     }
+
     public List<Vector2Int> GetNeighbors(Vector2Int pos)
     {
         List<Vector2Int> neighbors = new List<Vector2Int>();
-        int[,] evenOffsets = new int[,] {{ 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 }, { -1, 1 }, { -1, -1 }};
-        int[,] oddOffsets = new int[,]{{ 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 }, { 1, 1 }, { 1, -1 }};
+        int[,] evenOffsets = new int[,] { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 }, { -1, 1 }, { -1, -1 } };
+        int[,] oddOffsets = new int[,] { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 }, { 1, 1 }, { 1, -1 } };
         bool isEvenRow = pos.x % 2 == 0;
         int[,] offsets = isEvenRow ? evenOffsets : oddOffsets;
         for (int i = 0; i < offsets.GetLength(0); i++)
@@ -150,11 +151,36 @@ public class BubbleGrid : MonoBehaviour
 
                 if (bubbles[row, col] != null && !connected.Contains(pos))
                 {
-                    Destroy(bubbles[row, col]);
+                    Bubble objectBubble = bubbles[row, col].GetComponent<Bubble>();
+                    //objectBubble.isFloating = true;
+                    
+                    Debug.Log("removing floating bubble at: " + pos);
+                    //bubbles[row,col].gameObject.transform.position = Vector2.Lerp(bubbles[row,col].gameObject.transform.position, new Vector2(bubbles[row,col].gameObject.transform.position.x,-10f), 3f);
+                    //Destroy(bubbles[row, col]); // Destroy the bubble
+                    StartCoroutine(DropAndDestroy(bubbles[row, col]));
                     bubbles[row, col] = null;
                 }
             }
         }
     }
+
+    IEnumerator DropAndDestroy(GameObject bubble)
+    {
+        Vector2 start = bubble.transform.position;
+        Vector2 end = new Vector2(start.x, -10f);
+        float t = 0;
+        float duration = 1f;
+
+        while (t < 1)
+        {
+            t += Time.deltaTime / duration;
+            bubble.transform.position = Vector2.Lerp(start, end, t);
+            yield return null;
+        }
+
+        Destroy(bubble);
+    }
+
+
 }
 
