@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class myMatrix4x4
 {
@@ -76,15 +77,44 @@ public class myMatrix4x4
         return rv;
     }
 
-    public static myMatrix4x4 CreateTranslation2D(float x, float y)
+    public static void CreateTranslation2D(GameObject transObject, Vector3 translation)
     {
-        return new myMatrix4x4(
-            new Vector4(1, 0, 0, 0),
-            new Vector4(0, 1, 0, 0),
-            new Vector4(0, 0, 1, 0),
-            new Vector4(x, y, 0, 1)
+        MeshFilter mf = transObject.GetComponent<MeshFilter>();
+        Vector3[] originalVertices = mf.mesh.vertices;
+        Vector3[] transformedVertices = new Vector3[originalVertices.Length];
+
+        // Construct a translation matrix using your custom class
+        myMatrix4x4 translationMatrix = new myMatrix4x4(
+            new Vector3(1, 0, 0),     // X-axis
+            new Vector3(0, 1, 0),     // Y-axis
+            new Vector3(0, 0, 1),     // Z-axis
+            translation              // Translation vector
         );
+
+        for (int i = 0; i < originalVertices.Length; i++)
+        {
+            transformedVertices[i] = translationMatrix * originalVertices[i];  // Assuming your matrix supports multiplication
+        }
+
+        mf.mesh.vertices = transformedVertices;
+        mf.mesh.RecalculateBounds();
+        mf.mesh.RecalculateNormals();
     }
+    public static void ApplyCustom2DTranslation(GameObject transObject,Vector2 translation)
+    {
+        // Construct 4x4 translation matrix using your custom class (Z = 0 for 2D)
+        myMatrix4x4 translationMatrix = new myMatrix4x4(
+            new Vector3(1, 0, 0),
+            new Vector3(0, 1, 0),
+            new Vector3(0, 0, 1),
+            new Vector3(translation.x, translation.y, 0)
+        );
+
+        // Apply translation
+        Vector3 newPos = translationMatrix * transObject.transform.position; // Assumes you overloaded `*`
+        transObject.transform.position = newPos;
+    }
+
 
     public static myMatrix4x4 CreateRotation2D(float degrees)
     {

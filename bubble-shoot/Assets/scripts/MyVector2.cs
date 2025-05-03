@@ -123,33 +123,40 @@ public class MyVector2
         return reflected;
     }
 
-    public static float VectorToRadians(Vector2 V)
+    //Static function to convert a vector to radians
+    public static float VectorToRadians(MyVector2 V)
     {
         float rv = 0f;
         rv = Mathf.Atan(V.y / V.x);
 
         return rv;
     }
-    public static Vector2 RadiansToVector(float angle)
+
+    //Static function to convert radians to a vector
+    public static MyVector2 RadiansToVector(float angle)
     {
-        Vector2 rv = new Vector2(Mathf.Cos(angle),Mathf.Sin(angle));
+        MyVector2 rv = new MyVector2(Mathf.Cos(angle),Mathf.Sin(angle));
         rv.x = Mathf.Cos(angle);
         rv.y = Mathf.Sin(angle);
 
         return rv;
     }
 
-    public static Vector2 VectorCrossProduct(Vector2 A, Vector2 B)
+    //static function for Vector Cross Product
+    public static MyVector2 VectorCrossProduct(MyVector2 A, MyVector2 B)
     {
-        Vector2 C = new Vector2();
+        MyVector2 C = new MyVector2(0f,0f);
         C.x = A.y * B.x - A.x * B.y;
         C.y = A.x * B.y - A.y * B.x;
 
         return C;
     }
 
-    public static Vector2 VecLerp(Vector2 A, Vector2 B, float t)
+    //Lerps between two vectors
+    public static MyVector2 VecLerp(MyVector2 A, MyVector2 B, float t)
     {
-        return A*(1.0f-t)+B * t;
+        MyVector2 C = Scaling_Vectors(A, 1.0f - t);
+        C = AddingVectors2(C, Scaling_Vectors(B, t));
+        return C;
     }
 }
