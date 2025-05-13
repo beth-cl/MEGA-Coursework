@@ -100,7 +100,7 @@ public class myMatrix4x4
         mf.mesh.RecalculateBounds();
         mf.mesh.RecalculateNormals();
     }
-    public static void ApplyCustom2DTranslation(GameObject transObject,Vector2 translation)
+    public static void ApplyCustom2DTranslation(GameObject transObject,MyVector2 translation)
     {
         // Construct 4x4 translation matrix using your custom class (Z = 0 for 2D)
         myMatrix4x4 translationMatrix = new myMatrix4x4(

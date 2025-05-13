@@ -27,19 +27,24 @@ public class Bubble : MonoBehaviour
     {
         // Check if the bubble is out of bounds of the grid array  
         BubbleGrid bubbleGrid = FindObjectOfType<BubbleGrid>();
-        Vector2Int gridCoords = bubbleGrid.GetGridCoords(transform.position);
+        MyVector2 gridCoords = bubbleGrid.GetGridCoords(new MyVector2(transform.position.x,transform.position.y));
 
         if (gridCoords.y < 0 || gridCoords.y >= bubbleGrid.bubbles.GetLength(1))
         {
             Debug.LogWarning("Bubble is out of bounds and will be destroyed.");
-            Destroy(gameObject);
+            //Destroy(gameObject);
         }
-        if (isFloating)
+        /*if (isFloating)
         {
-            Destroy(gameObject);
+            //Destroy(gameObject);
+            MyVector2 transPosition = new MyVector2(transform.position.x, transform.position.y);
             Debug.Log("Bubble is floating");
-            transform.position = Vector2.Lerp(gridCoords, new Vector2(gridCoords.x, -5.5f), Time.deltaTime);
-        }
+            MyVector2 lerpValue = MyVector2.VecLerp(transPosition, new MyVector2(gridCoords.x, -5.5f), Time.deltaTime);
+            //transform.position = lerpValue.ToUnityVector();
+            MyVector2 newPosition = MyVector2.SubtractingVector2(lerpValue, transPosition);
+            myMatrix4x4.ApplyCustom2DTranslation(gameObject,newPosition);
+
+        }*/
 
         //FindObjectOfType<BubbleGrid>().RemoveFloatingBubbles();  
         gameover();
@@ -50,9 +55,9 @@ public class Bubble : MonoBehaviour
         Color BubbleType;
         switch (RandInt)
         {
-            case 0: BubbleType = Color.green; break;
-            case 1: BubbleType = Color.magenta; break;
-            case 2: BubbleType = Color.cyan; break;
+            case 0: BubbleType = new Color(242f/255f,163f/255f,89f / 255f); break;
+            case 1: BubbleType = new Color(184f / 255f,51f / 255f,106f / 255f); break;
+            case 2: BubbleType = new Color(37f / 255f, 142f / 255f, 166f / 255f); break;
             default: BubbleType = Color.white; break;
         }
         return BubbleType;
@@ -60,61 +65,64 @@ public class Bubble : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
+        MyVector2 TransVector = new MyVector2(transform.position.x, transform.position.y);
         BubbleGrid bubbleGrid = FindObjectOfType<BubbleGrid>();
         if (collision.gameObject.CompareTag("Bubble") || collision.gameObject.CompareTag("Celing"))
         {
-            Vector2 snappedPosition = bubbleGrid.GetNearestGridPosition(transform.position);
-            transform.position = snappedPosition;
-            GetComponent<Rigidbody2D>().velocity = Vector2.zero; // Stop movement  
-            GetComponent<Rigidbody2D>().isKinematic = true;      // Fix in place  
+            Debug.Log("Bubble Collision Detected " + transform.position);
+            MyVector2 snappedPosition = bubbleGrid.GetNearestGridPosition(TransVector); // <------ not working
+            Debug.Log("Snapped Position: " + snappedPosition.x + " " + snappedPosition.y);
+            myMatrix4x4.ApplyCustom2DTranslation(gameObject, MyVector2.SubtractingVector2(snappedPosition, TransVector));
+            GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+            GetComponent<Rigidbody2D>().isKinematic = true;
             GetComponent<Rigidbody2D>().freezeRotation = true;
 
-            Vector2Int gridCoords = bubbleGrid.GetGridCoords(snappedPosition);
-            if (!bubbleGrid.bubbles[gridCoords.x, gridCoords.y]) // Check if the grid position is empty
+            MyVector2 gridCoords = bubbleGrid.GetGridCoords(snappedPosition);
+            if (!bubbleGrid.bubbles[(int)gridCoords.x, (int)gridCoords.y])
             {
-                bubbleGrid.bubbles[gridCoords.x, gridCoords.y] = gameObject; // Assign the bubble to the grid
+                bubbleGrid.bubbles[(int)gridCoords.x, (int)gridCoords.y] = gameObject;
                 Debug.Log("Bubble assigned to grid position: " + gridCoords);
             }
             else
             {
                 Debug.Log("Grid position already occupied");
-                //Destroy(gameObject); // Destroy the bubble if the position is occupied
             }
-            //bubbleGrid.bubbles[gridCoords.x, gridCoords.y] = gameObject;
 
             if (wasFired)
             {
-                TryPopBubbles(); // Call the method to check for matching bubbles
-                //RemoveFloatingBubbles();
+                TryPopBubbles();
             }
         }
-        if (collision.gameObject.CompareTag("BubbleBin")) // Replace with the relevant tag  
+        if (collision.gameObject.CompareTag("BubbleBin"))
         {
-            Destroy(gameObject); // Destroys the object this script is attached to  
+            Destroy(gameObject);
         }
+        bubbleGrid.RemoveFloatingBubbles();
+    }
 
-        if (collision.gameObject.CompareTag("Wall"))
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Wall"))
         {
-            Debug.Log("Wall Collision Detected");
+            Debug.Log("Wall Collision Detected " + transform.position);
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
-            Vector2 velocity = rb.velocity; // Get the object's current velocity  
+            Vector2 velocity = rb.velocity;
 
-            if (velocity.magnitude > 0.01f) // Only reflect if moving fast enough
+            if (velocity.magnitude > 0.01f)
             {
-                MyVector2 myVelocity = new MyVector2(velocity.x, velocity.y); // MyVector2 of the velocity
-                Vector2 normal = collision.contacts[0].normal; // Get the normal of the surface we collided with  
-                MyVector2 myNormal = new MyVector2(normal.x, normal.y); // MyVector2 of normal  
-                MyVector2 MyReflectedVelocity = MyVector2.ReflectVector(myVelocity, myNormal); // Reflect velocity  
-                Vector2 reflectedVelocity = MyReflectedVelocity.ToUnityVector(); // Convert back to Vector2  
+                MyVector2 myVelocity = new MyVector2(velocity.x, velocity.y);
+                Vector2 normal = (transform.position.x <0) ? Vector2.right : Vector2.left;
+                MyVector2 myNormal = new MyVector2(normal.x, normal.y);
+                MyVector2 MyReflectedVelocity = MyVector2.ReflectVector(myVelocity, myNormal);
+                Vector2 reflectedVelocity = MyReflectedVelocity.ToUnityVector();
 
-                rb.velocity = reflectedVelocity; // Apply reflected velocity
+                rb.velocity = reflectedVelocity;
             }
             else
             {
                 Debug.LogWarning("Velocity too small, skipping reflection.");
             }
         }
-
     }
 
     void gameover()

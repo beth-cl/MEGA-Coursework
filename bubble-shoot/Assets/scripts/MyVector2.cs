@@ -4,9 +4,7 @@ public class MyVector2
 {
     public float x, y;
 
-
-    // WORKSHOP 2
-
+    //Create a constructor that takes in two floats and sets the x and y values to create my own Vector2 class
     public MyVector2(float x, float y)
     {
         this.x = x;
@@ -35,6 +33,7 @@ public class MyVector2
         return vectorC;
     }
 
+    //Changes MyVector2 back to UnityEngine.Vector2
     public UnityEngine.Vector2 ToUnityVector()
     {
         UnityEngine.Vector2 vectorC = new UnityEngine.Vector2();
@@ -95,6 +94,8 @@ public class MyVector2
 
         return vector_normalised;
     }
+
+    //Create a static function that takes in two vectors and returns the dot product of the two vectors
     public static float DotProduct(MyVector2 vectorA, MyVector2 vectorB, bool should_normalise = true)
     {
         float dotProduct = 0f;
@@ -113,9 +114,10 @@ public class MyVector2
         return dotProduct;
     }
 
+
+    //Create a static function that takes in two vectors and returns the angle between the two vectors
     public static MyVector2 ReflectVector(MyVector2 vector, MyVector2 normal)
     {
-        //float dot = DotProduct(vector, normal);// Calculate the dot product of the vector and the normal
         MyVector2 reflected = new MyVector2(vector.x*-1,vector.y);// Calculate the reflection vector
         Debug.Log("velocity " + vector.x + " " + vector.y);
         Debug.Log("reflected velocity " + reflected.x + " "+ reflected.y);
@@ -152,11 +154,18 @@ public class MyVector2
         return C;
     }
 
-    //Lerps between two vectors
+    //Static function to Lerp between two vectors
     public static MyVector2 VecLerp(MyVector2 A, MyVector2 B, float t)
     {
         MyVector2 C = Scaling_Vectors(A, 1.0f - t);
         C = AddingVectors2(C, Scaling_Vectors(B, t));
         return C;
+    }
+
+    //Static function to convert a vector to int
+    public static MyVector2 MyVectorToInt(MyVector2 A)
+    {
+        MyVector2 B = new MyVector2(Mathf.RoundToInt(A.x), Mathf.RoundToInt(A.y));
+        return B;
     }
 }

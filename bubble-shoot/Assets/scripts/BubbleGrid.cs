@@ -8,7 +8,7 @@ public class BubbleGrid : MonoBehaviour
     public int rows = 8;             // Number of rows
     public int columns = 7;             // Number of columns
     public float bubbleSize = 1f;  // Spacing between bubbles
-    public Vector2 startPosition = new Vector2(-3.2f, 3.5f);
+    public MyVector2 startPosition = new MyVector2(-3.2f, 4f);
     public GameObject[,] bubbles; // 2D array to store bubbles
 
     void Start()
@@ -17,40 +17,46 @@ public class BubbleGrid : MonoBehaviour
     }
     void Update()
     {
-        RemoveFloatingBubbles();
+        
     }
     void CreateGrid()
     {
         bubbles = new GameObject[rows, columns]; // Initialize the 2D array
         for (int row = 0; row <= 3; row++)
         {
+            float offset = (row % 2 == 0) ? 0f : bubbleSize / 2f;
             for (int col = 0; col < columns; col++)
             {
                 // Calculate position
-                Vector2 spawnPos = new Vector2(
-                    startPosition.x + col * bubbleSize,
+                MyVector2 spawnPos = new MyVector2(
+                    startPosition.x + col * bubbleSize+offset,
                     startPosition.y - row * (bubbleSize * 0.85f));
-                GameObject newBubble = Instantiate(bubblePrefab, spawnPos, Quaternion.identity);
+                GameObject newBubble = Instantiate(bubblePrefab, spawnPos.ToUnityVector(), Quaternion.identity);
                 newBubble.transform.parent = transform;  // Organize hierarchy
                 bubbles[row, col] = newBubble; // Add to 2D array
             }
         }
     }
-    public Vector2 GetNearestGridPosition(Vector2 position)
+    public MyVector2 GetNearestGridPosition(MyVector2 position)
     {
-        float y = Mathf.Round(position.y / bubbleSize) * bubbleSize;
-        float x = Mathf.Round((position.x / bubbleSize) * bubbleSize);
-        x -= (Mathf.Round(position.y / bubbleSize) % 2 == 0) ? 0 : bubbleSize / 2;
+        float row = Mathf.Round((startPosition.y - position.y) / (bubbleSize * 0.85f));
+        float y = startPosition.y - row * (bubbleSize * 0.85f);
 
-        return new Vector2(x, y);
+        float offset = (row % 2 == 0) ? 0f : bubbleSize / 2f;
+        float col = Mathf.Round((position.x - startPosition.x - offset) / bubbleSize);
+        float x = startPosition.x + col * bubbleSize + offset;
+
+        return new MyVector2(x, y);
     }
 
-    public Vector2Int GetGridCoords(Vector2 position)
+
+    public MyVector2 GetGridCoords(MyVector2 position)
     {
         int col = Mathf.RoundToInt((position.x - startPosition.x) / bubbleSize);
         int row = Mathf.RoundToInt((startPosition.y - position.y) / (bubbleSize * 0.85f)); // Adjust for vertical spacing
 
-        return new Vector2Int(row, col);
+        MyVector2 FindRandC = new MyVector2(row, col);
+        return MyVector2.MyVectorToInt(FindRandC);
     }
 
     // Helper flood fill
@@ -77,8 +83,8 @@ public class BubbleGrid : MonoBehaviour
     public void RemoveFromBubbleGrid(GameObject bubble)
     {
         BubbleGrid bubbleGrid = FindObjectOfType<BubbleGrid>();
-        Vector2Int gridCoords = bubbleGrid.GetGridCoords(bubble.transform.position);
-        bubbleGrid.bubbles[gridCoords.x, gridCoords.y] = null; // Remove the bubble from the array  
+        MyVector2 gridCoords = bubbleGrid.GetGridCoords(new MyVector2(bubble.transform.position.x, bubble.transform.position.y));
+        bubbleGrid.bubbles[(int)gridCoords.x, (int)gridCoords.y] = null; // Remove the bubble from the array  
         Debug.Log("removing bubble at: " + gridCoords);
     }
 
@@ -153,8 +159,6 @@ public class BubbleGrid : MonoBehaviour
                     //objectBubble.isFloating = true;
                     
                     Debug.Log("removing floating bubble at: " + pos);
-                    //bubbles[row,col].gameObject.transform.position = Vector2.Lerp(bubbles[row,col].gameObject.transform.position, new Vector2(bubbles[row,col].gameObject.transform.position.x,-10f), 3f);
-                    //Destroy(bubbles[row, col]); // Destroy the bubble
                     StartCoroutine(DropAndDestroy(bubbles[row, col]));
                     bubbles[row, col] = null;
                 }
@@ -164,20 +168,29 @@ public class BubbleGrid : MonoBehaviour
 
     IEnumerator DropAndDestroy(GameObject bubble)
     {
-        Vector2 start = bubble.transform.position;
-        Vector2 end = new Vector2(start.x, -10f);
-        float t = 0;
-        float duration = 1f;
+        bubble.GetComponent<Rigidbody2D>().isKinematic = true; // Disable physics
+        MyVector2 start = new MyVector2(bubble.transform.position.x, bubble.transform.position.y);
+        MyVector2 end = new MyVector2(start.x, -10f);
+        float t = 0f;
+        float duration = 5f;
 
-        while (t < 1)
+        MyVector2 previous = start;
+
+        while (t < 1f)
         {
             t += Time.deltaTime / duration;
-            bubble.transform.position = Vector2.Lerp(start, end, t);
+            MyVector2 current = MyVector2.VecLerp(start, end, t);
+
+            MyVector2 delta = MyVector2.SubtractingVector2(current, previous);
+            myMatrix4x4.ApplyCustom2DTranslation(bubble, delta); // Apply *delta*, not absolute
+
+            previous = current;
             yield return null;
         }
 
         Destroy(bubble);
     }
+
 
 
 }
