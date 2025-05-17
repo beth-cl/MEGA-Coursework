@@ -5,7 +5,7 @@ using UnityEngine;
 public class BubbleGrid : MonoBehaviour
 {
     public GameObject bubblePrefab;  // Assign the bubble prefab in the inspector
-    public int rows = 9;             // Number of rows
+    public int rows = 8;             // Number of rows
     public int columns = 7;             // Number of columns
     public float bubbleSize = 1f;  // Spacing between bubbles
     public MyVector2 startPosition = new MyVector2(-3.2f, 4f);
@@ -22,7 +22,7 @@ public class BubbleGrid : MonoBehaviour
     void CreateGrid()
     {
         bubbles = new GameObject[rows, columns]; // Initialize the 2D array
-        for (int row = 0; row <= 2; row++)
+        for (int row = 0; row <= 3; row++)
         {
             float offset = (row % 2 == 0) ? 0f : bubbleSize / 2f;
             for (int col = 0; col < columns; col++)
@@ -168,11 +168,27 @@ public class BubbleGrid : MonoBehaviour
 
     IEnumerator DropAndDestroy(GameObject bubble)
     {
-        bubble.GetComponent<Rigidbody2D>().isKinematic = true; // Disable physics  
-        myMatrix4x4.ApplyCustom2DTranslation(bubble, MyVector2.VecLerp(new MyVector2(bubble.transform.position.x, bubble.transform.position.y), new MyVector2(bubble.transform.position.x, -10f), 1f));
-        Destroy(bubble);
+        bubble.GetComponent<Rigidbody2D>().isKinematic = true; // Disable physics
+        MyVector2 start = new MyVector2(bubble.transform.position.x, bubble.transform.position.y);
+        MyVector2 end = new MyVector2(start.x, -10f);
+        float t = 0f;
+        float duration = 5f;
 
-        yield return null; // Wait for the next frame before continuing  
+        MyVector2 previous = start;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime / duration;
+            MyVector2 current = MyVector2.VecLerp(start, end, t);
+
+            MyVector2 delta = MyVector2.SubtractingVector2(current, previous);
+            myMatrix4x4.ApplyCustom2DTranslation(bubble, delta); // Apply *delta*, not absolute
+
+            previous = current;
+            yield return null;
+        }
+
+        Destroy(bubble);
     }
 
 
