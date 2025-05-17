@@ -102,16 +102,16 @@ public class myMatrix4x4
     }
     public static void ApplyCustom2DTranslation(GameObject transObject,MyVector2 translation)
     {
-        // Construct 4x4 translation matrix using your custom class (Z = 0 for 2D)
+        // Construct 4x4 translation matrix using custom class
         myMatrix4x4 translationMatrix = new myMatrix4x4(
-            new Vector3(1, 0, 0),
-            new Vector3(0, 1, 0),
-            new Vector3(0, 0, 1),
-            new Vector3(translation.x, translation.y, 0)
+            new Vector4(1, 0, 0, 0),
+            new Vector4(0, 1, 0, 0),
+            new Vector4(0, 0, 1, 0),
+            new Vector4(translation.x, translation.y, 0, 1)
         );
 
         // Apply translation
-        Vector3 newPos = translationMatrix * transObject.transform.position; // Assumes you overloaded `*`
+        Vector4 newPos = translationMatrix * transObject.transform.position; // Assumes overloaded `*`
         transObject.transform.position = newPos;
     }
 
@@ -141,3 +141,18 @@ public class myMatrix4x4
     }
 
 }
+
+/*
+-- Matrix4x4 3D example --
+(1, 0, 0, 0)
+(0, 1, 0, 0)
+(0, 0, 1, 0)
+(0, 0, 0, 1) <-- Homogeneous coordinate
+
+-- Matrix3x3 2D example --
+(1, 0, 0)
+(0, 1, 0)
+(0, 0, 1) <-- Homogeneous coordinate
+
+*/
+

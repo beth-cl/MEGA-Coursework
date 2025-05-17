@@ -129,7 +129,7 @@ public class MyVector2
     public static float VectorToRadians(MyVector2 V)
     {
         float rv = 0f;
-        rv = Mathf.Atan(V.y / V.x);
+        rv = Mathf.Atan2(V.y , V.x);
 
         return rv;
     }
@@ -138,10 +138,16 @@ public class MyVector2
     public static MyVector2 RadiansToVector(float angle)
     {
         MyVector2 rv = new MyVector2(Mathf.Cos(angle),Mathf.Sin(angle));
-        rv.x = Mathf.Cos(angle);
-        rv.y = Mathf.Sin(angle);
-
         return rv;
+    }
+
+    //Static function to ratate a direction vector by a given angle
+    public static MyVector2 RotateVector(MyVector2 direction, float angle)
+    {
+        angle = angle * Mathf.Deg2Rad; // Convert to radians
+        float currentangle = VectorToRadians(direction);
+        MyVector2 rotated = RadiansToVector(currentangle + angle);
+        return rotated;
     }
 
     //static function for Vector Cross Product
@@ -157,9 +163,9 @@ public class MyVector2
     //Static function to Lerp between two vectors
     public static MyVector2 VecLerp(MyVector2 A, MyVector2 B, float t)
     {
-        MyVector2 C = Scaling_Vectors(A, 1.0f - t);
-        C = AddingVectors2(C, Scaling_Vectors(B, t));
-        return C;
+        //A *(1,0f - t) + B * t;
+
+        return AddingVectors2(Scaling_Vectors(A, (1f - t)),Scaling_Vectors(B, t));
     }
 
     //Static function to convert a vector to int
@@ -167,5 +173,12 @@ public class MyVector2
     {
         MyVector2 B = new MyVector2(Mathf.RoundToInt(A.x), Mathf.RoundToInt(A.y));
         return B;
+    }
+
+    public static float Distance(MyVector2 a, MyVector2 b)
+    {
+        float dx = a.x - b.x;
+        float dy = a.y - b.y;
+        return Mathf.Sqrt(dx * dx + dy * dy);
     }
 }
