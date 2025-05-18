@@ -154,8 +154,6 @@ public class MyVector2
         return C;
     }
 
-    //Static function to Lerp between two vectors
-    public static MyVector2 VecLerp(MyVector2 A, MyVector2 B, float t)
     {
         MyVector2 C = Scaling_Vectors(A, 1.0f - t);
         C = AddingVectors2(C, Scaling_Vectors(B, t));

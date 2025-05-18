@@ -35,16 +35,14 @@ public class Bubble : MonoBehaviour
             Debug.LogWarning("Bubble is out of bounds and will be destroyed.");
             Destroy(gameObject);
         }
+        */
+        bubbleGrid.RemoveFloatingBubbles();
+        gameover();
+        if (isFloating)
         {
-            //Destroy(gameObject);
-            MyVector2 transPosition = new MyVector2(transform.position.x, transform.position.y);
             Debug.Log("Bubble is floating");
-            MyVector2 lerpValue = MyVector2.VecLerp(transPosition, new MyVector2(gridCoords.x, -5.5f), Time.deltaTime);
-            //transform.position = lerpValue.ToUnityVector();
-            MyVector2 newPosition = MyVector2.SubtractingVector2(lerpValue, transPosition);
-            myMatrix4x4.ApplyCustom2DTranslation(gameObject,newPosition);
 
-        }*/
+            transform.position = MyVector2.VecLerp(new MyVector2(transform.position.x,transform.position.y), new MyVector2(transform.position.x, -10f), 0.1f);
 
         //FindObjectOfType<BubbleGrid>().RemoveFloatingBubbles();  
         gameover();

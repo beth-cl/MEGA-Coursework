@@ -166,31 +166,4 @@ public class BubbleGrid : MonoBehaviour
         }
     }
 
-    IEnumerator DropAndDestroy(GameObject bubble)
-    {
-        bubble.GetComponent<Rigidbody2D>().isKinematic = true; // Disable physics
-        MyVector2 start = new MyVector2(bubble.transform.position.x, bubble.transform.position.y);
-        MyVector2 end = new MyVector2(start.x, -10f);
-        float t = 0f;
-        float duration = 5f;
-
-        MyVector2 previous = start;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime / duration;
-            MyVector2 current = MyVector2.VecLerp(start, end, t);
-
-            MyVector2 delta = MyVector2.SubtractingVector2(current, previous);
-            myMatrix4x4.ApplyCustom2DTranslation(bubble, delta); // Apply *delta*, not absolute
-
-            previous = current;
-            yield return null;
-        }
-
-        Destroy(bubble);
-    }
-
-
-
 }
