@@ -4,16 +4,22 @@ using UnityEngine;
 
 public class BoundingCircle
 {
-    public Vector3 centerPoint;
+    public Vector2 centerPoint;
     public float radius;
 
-    public BoundingCircle(Vector3 centerPoint, float radius)
+    public BoundingCircle(Vector2 centerPoint, float radius)
     {
         this.centerPoint = centerPoint;
         this.radius = radius;
     }
     public bool Intersects(BoundingCircle othercircle)
     {
+
+        if (othercircle == null)
+        {
+            Debug.LogError("BoundingCircle.Intersects() called with null othercircle");
+            return false;
+        }
         Vector2 VectorToOther = othercircle.centerPoint - centerPoint;
         float combinedRadiusSq = (othercircle.radius + radius);
         combinedRadiusSq *= combinedRadiusSq;
