@@ -50,8 +50,9 @@ public class Bubble : MonoBehaviour
         gameover();
         if (isFloating)
         {
+            Collider2D collider = GetComponent<Collider2D>();
             Debug.Log("Bubble is floating");
-
+            collider.enabled = false; // Disable the collider
             transform.position = MyVector2.VecLerp(new MyVector2(transform.position.x,transform.position.y), new MyVector2(transform.position.x, -10f), 0.1f);
 
         }
