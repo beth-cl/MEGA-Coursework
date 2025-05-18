@@ -29,12 +29,12 @@ public class Bubble : MonoBehaviour
         BubbleGrid bubbleGrid = FindObjectOfType<BubbleGrid>();
         MyVector2 gridCoords = bubbleGrid.GetGridCoords(new MyVector2(transform.position.x,transform.position.y));
 
-        if (gridCoords.y < 0 || gridCoords.y >= bubbleGrid.bubbles.GetLength(1))
+
+        /*if (gridCoords.y < 0 || gridCoords.y >= bubbleGrid.bubbles.GetLength(1))
         {
             Debug.LogWarning("Bubble is out of bounds and will be destroyed.");
-            //Destroy(gameObject);
+            Destroy(gameObject);
         }
-        /*if (isFloating)
         {
             //Destroy(gameObject);
             MyVector2 transPosition = new MyVector2(transform.position.x, transform.position.y);
@@ -111,8 +111,20 @@ public class Bubble : MonoBehaviour
             if (velocity.magnitude > 0.01f)
             {
                 MyVector2 myVelocity = new MyVector2(velocity.x, velocity.y);
-                Vector2 normal = (transform.position.x <0) ? Vector2.right : Vector2.left;
-                MyVector2 myNormal = new MyVector2(normal.x, normal.y);
+                MyVector2 myNormal = new MyVector2(0f,0f);
+                if (other.CompareTag("LeftWall"))
+                {
+                    myNormal.x = 1f;
+                }
+                else if (other.CompareTag("RightWall"))
+                {
+                    myNormal.x = -1f;
+                }
+                else
+                {
+                    Debug.LogWarning("Unexpected wall collision detected.");
+                }
+                
                 MyVector2 MyReflectedVelocity = MyVector2.ReflectVector(myVelocity, myNormal);
                 Vector2 reflectedVelocity = MyReflectedVelocity.ToUnityVector();
 
