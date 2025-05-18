@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static UnityEngine.RuleTile.TilingRuleOutput;
@@ -128,6 +129,12 @@ public class myMatrix4x4
             new Vector4(0, 0, 1, 0),
             new Vector4(0, 0, 0, 1)
         );
+    }
+    public static void ApplyRotation2D(GameObject rotateObject, myMatrix4x4 matrix, float degrees)
+    {
+        myMatrix4x4 rotationMatrix = CreateRotation2D(degrees);
+        Vector3 newPos = rotationMatrix * rotateObject.transform.position;
+        rotateObject.transform.position = newPos;
     }
 
     public static myMatrix4x4 CreateScale2D(float scaleX, float scaleY)
