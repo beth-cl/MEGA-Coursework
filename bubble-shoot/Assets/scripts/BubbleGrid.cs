@@ -159,7 +159,7 @@ public class BubbleGrid : MonoBehaviour
                     //objectBubble.isFloating = true;
                     
                     Debug.Log("removing floating bubble at: " + pos);
-                    StartCoroutine(DropAndDestroy(bubbles[row, col]));
+                    objectBubble.isFloating = true;
                     bubbles[row, col] = null;
                 }
             }

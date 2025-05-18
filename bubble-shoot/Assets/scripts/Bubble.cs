@@ -1,25 +1,35 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class Bubble : MonoBehaviour
 {
+
+    //Bounding circles-------
+    public BoundingCircle boundingCircle;
+
+    //-----------------------
+
     public int RandInt;
     public bool wasFired = false;
     public List<Bubble> currentconnectedbubbles = new List<Bubble>();
     public bool isFloating = false;
 
     Renderer BubbleRenderer;
+    MyVector2 rv;
 
     // Start is called before the first frame update
     void Start()
     {
+
         RandInt = UnityEngine.Random.Range(0, 3);
         BubbleRenderer = GetComponent<Renderer>();
         Color BubbleColour = RandomBubble(RandInt);
         BubbleRenderer.material.color = BubbleColour;
+        rv = new MyVector2(gameObject.transform.position.x, gameObject.transform.position.y);
     }
 
     // Update is called once per frame  
@@ -27,7 +37,7 @@ public class Bubble : MonoBehaviour
     {
         // Check if the bubble is out of bounds of the grid array  
         BubbleGrid bubbleGrid = FindObjectOfType<BubbleGrid>();
-        MyVector2 gridCoords = bubbleGrid.GetGridCoords(new MyVector2(transform.position.x,transform.position.y));
+        MyVector2 gridCoords = bubbleGrid.GetGridCoords(new MyVector2(gameObject.transform.position.x,gameObject.transform.position.y));
 
 
         /*if (gridCoords.y < 0 || gridCoords.y >= bubbleGrid.bubbles.GetLength(1))
@@ -44,8 +54,7 @@ public class Bubble : MonoBehaviour
 
             transform.position = MyVector2.VecLerp(new MyVector2(transform.position.x,transform.position.y), new MyVector2(transform.position.x, -10f), 0.1f);
 
-        //FindObjectOfType<BubbleGrid>().RemoveFloatingBubbles();  
-        gameover();
+        }
     }
 
     private Color RandomBubble(int RandInt)
@@ -63,11 +72,11 @@ public class Bubble : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        MyVector2 TransVector = new MyVector2(transform.position.x, transform.position.y);
+        MyVector2 TransVector = new MyVector2(gameObject.transform.position.x, gameObject.transform.position.y);
         BubbleGrid bubbleGrid = FindObjectOfType<BubbleGrid>();
         if (collision.gameObject.CompareTag("Bubble") || collision.gameObject.CompareTag("Celing"))
         {
-            Debug.Log("Bubble Collision Detected " + transform.position);
+            Debug.Log("Bubble Collision Detected " + gameObject.transform.position);
             MyVector2 snappedPosition = bubbleGrid.GetNearestGridPosition(TransVector); // <------ not working
             Debug.Log("Snapped Position: " + snappedPosition.x + " " + snappedPosition.y);
             myMatrix4x4.ApplyCustom2DTranslation(gameObject, MyVector2.SubtractingVector2(snappedPosition, TransVector));
@@ -95,14 +104,15 @@ public class Bubble : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        bubbleGrid.RemoveFloatingBubbles();
+        rv = new MyVector2(gameObject.transform.position.x, gameObject.transform.position.y);
+
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Wall"))
+        if (other.CompareTag("LeftWall") || other.CompareTag("RightWall"))
         {
-            Debug.Log("Wall Collision Detected " + transform.position);
+            Debug.Log("Wall Collision Detected " + gameObject.transform.position);
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
             Vector2 velocity = rb.velocity;
 
@@ -140,7 +150,7 @@ public class Bubble : MonoBehaviour
         GameObject GOshooter = GameObject.Find("Spawner");
         Shooter shooter = GOshooter.GetComponent<Shooter>();
 
-        if (shooter.BubbleInSpawn == true && transform.position.y == -3)
+        if (shooter.BubbleInSpawn == true && gameObject.transform.position.y == -3)
         {
             Debug.Log("gameover");
 
@@ -160,7 +170,7 @@ public class Bubble : MonoBehaviour
     public List<Bubble> GetConnectedBubbles()
     {
         List<Bubble> connectedBubbles = new List<Bubble>();
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 0.8f);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(gameObject.transform.position, 0.8f);
 
         foreach (Collider2D hit in hits)
         {
@@ -224,5 +234,44 @@ public class Bubble : MonoBehaviour
         }
     }
 
+    private IEnumerator MoveAndDestroy()
+    {
+        float duration = 2f; // Duration of the movement  
+        float elapsedTime = 0f;
+        MyVector2 startPosition = new MyVector2(gameObject.transform.position.x, gameObject.transform.position.y);
+        MyVector2 endPosition = new MyVector2(gameObject.transform.position.x, -10f);
+        MyVector2 lastPosition = startPosition;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / duration;
+
+            Vector2 currentInterpolated = MyVector2.VecLerp(startPosition, endPosition, t);
+            MyVector2 test = new MyVector2(currentInterpolated.x, currentInterpolated.y);
+
+            // Calculate the frame delta
+            MyVector2 delta = MyVector2.SubtractingVector2(test, lastPosition);
+            myMatrix4x4.ApplyCustom2DTranslation(gameObject, delta);
+
+            lastPosition = test;
+
+            Vector2 interpolatedPosition = MyVector2.VecLerp(startPosition, endPosition, t);
+            myMatrix4x4.ApplyCustom2DTranslation(gameObject, MyVector2.SubtractingVector2(new MyVector2(interpolatedPosition.x, interpolatedPosition.y), startPosition));
+            yield return null;
+        }
+
+        Destroy(gameObject);
+    }
+
 
 }
+
+/* 
+     C = A(1-t) + Bt
+    -------------------
+    A & B are Vectors
+      t is a scalar
+the result (C) is a Vector
+
+ */
