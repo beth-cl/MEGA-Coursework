@@ -120,7 +120,7 @@ public class MyVector2
         MyVector2 reflected = new MyVector2(vector.x * -1, vector.y);// Calculate the reflection vector
         Debug.Log("velocity " + vector.x + " " + vector.y);
         Debug.Log("reflected velocity " + reflected.x + " " + reflected.y);
-        Debug.Break();
+        //Debug.Break();
 
         return reflected;
     }

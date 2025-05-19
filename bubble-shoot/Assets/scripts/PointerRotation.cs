@@ -33,6 +33,8 @@ public class PointerRotation : MonoBehaviour
         {
             angleToMouse += 180;
         }
-        shooterObject.transform.rotation = MyQuaternion.EulerZ(angleToMouse);
+        //shooterObject.transform.rotation = MyQuaternion.EulerZ(angleToMouse);
+        shooterObject.transform.rotation = MyQuaternion.EulerXYZ(0f, 0f, angleToMouse);
+
     }
 }
