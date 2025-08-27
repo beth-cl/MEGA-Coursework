@@ -4,39 +4,38 @@ using Unity.VisualScripting;
 using UnityEngine;
 public class BubbleGrid : MonoBehaviour
 {
-    public GameObject bubblePrefab;  // Assign the bubble prefab in the inspector
-    public int rows = 8;             // Number of rows
-    public int columns = 7;             // Number of columns
-    public float bubbleSize = 1f;  // Spacing between bubbles
+    public GameObject bubblePrefab;
+    public int rows = 8;
+    public int columns = 8;
+    public float bubbleSize = 1f;
     public MyVector2 startPosition = new MyVector2(-3.2f, 4f);
-    public GameObject[,] bubbles; // 2D array to store bubbles
+    public GameObject[,] bubbles;
 
     void Start()
     {
         CreateGrid();
     }
-    void Update()
-    {
-        
-    }
+
+    /// <summary>Creates the bubble grid and populates it with bubble objects.</summary>
     void CreateGrid()
     {
-        bubbles = new GameObject[rows, columns]; // Initialize the 2D array
+        bubbles = new GameObject[rows, columns];
         for (int row = 0; row <= 3; row++)
         {
             float offset = (row % 2 == 0) ? 0f : bubbleSize / 2f;
             for (int col = 0; col < columns; col++)
             {
-                // Calculate position
                 MyVector2 spawnPos = new MyVector2(
-                    startPosition.x + col * bubbleSize+offset,
+                    startPosition.x + col * bubbleSize + offset,
                     startPosition.y - row * (bubbleSize * 0.85f));
                 GameObject newBubble = Instantiate(bubblePrefab, spawnPos.ToUnityVector(), Quaternion.identity);
-                newBubble.transform.parent = transform;  // Organize hierarchy
-                bubbles[row, col] = newBubble; // Add to 2D array
+                newBubble.transform.parent = transform;
+                bubbles[row, col] = newBubble;
             }
         }
     }
+
+    /// <summary>Finds the nearest grid position to a given world position.</summary>
     public MyVector2 GetNearestGridPosition(MyVector2 position)
     {
         float row = Mathf.Round((startPosition.y - position.y) / (bubbleSize * 0.85f));
@@ -49,17 +48,16 @@ public class BubbleGrid : MonoBehaviour
         return new MyVector2(x, y);
     }
 
-
+    /// <summary>Gets the grid coordinates (row and column) for a given world position.</summary>
     public MyVector2 GetGridCoords(MyVector2 position)
     {
         int col = Mathf.RoundToInt((position.x - startPosition.x) / bubbleSize);
-        int row = Mathf.RoundToInt((startPosition.y - position.y) / (bubbleSize * 0.85f)); // Adjust for vertical spacing
-
+        int row = Mathf.RoundToInt((startPosition.y - position.y) / (bubbleSize * 0.85f));
         MyVector2 FindRandC = new MyVector2(row, col);
         return MyVector2.MyVectorToInt(FindRandC);
     }
 
-    // Helper flood fill
+    /// <summary>Performs a flood fill to find all connected bubbles starting from a given bubble.</summary>
     private void FloodFillConnected(Bubble start, HashSet<Bubble> connectedSet)
     {
         Queue<Bubble> queue = new Queue<Bubble>();
@@ -80,14 +78,16 @@ public class BubbleGrid : MonoBehaviour
         }
     }
 
+    /// <summary>Removes a bubble from the grid at its current position.</summary>
     public void RemoveFromBubbleGrid(GameObject bubble)
     {
         BubbleGrid bubbleGrid = FindObjectOfType<BubbleGrid>();
         MyVector2 gridCoords = bubbleGrid.GetGridCoords(new MyVector2(bubble.transform.position.x, bubble.transform.position.y));
-        bubbleGrid.bubbles[(int)gridCoords.x, (int)gridCoords.y] = null; // Remove the bubble from the array  
+        bubbleGrid.bubbles[(int)gridCoords.x, (int)gridCoords.y] = null;
         Debug.Log("removing bubble at: " + gridCoords);
     }
 
+    /// <summary>Gets the neighboring grid positions for a given position.</summary>
     public List<Vector2Int> GetNeighbors(Vector2Int pos)
     {
         List<Vector2Int> neighbors = new List<Vector2Int>();
@@ -107,12 +107,12 @@ public class BubbleGrid : MonoBehaviour
         return neighbors;
     }
 
+    /// <summary>Finds all bubbles connected to the top row of the grid.</summary>
     public HashSet<Vector2Int> FindConnectedToTop()
     {
         HashSet<Vector2Int> connected = new HashSet<Vector2Int>();
         Queue<Vector2Int> queue = new Queue<Vector2Int>();
 
-        // Start from all bubbles in top row
         for (int col = 0; col < columns; col++)
         {
             if (bubbles[0, col] != null)
@@ -143,6 +143,7 @@ public class BubbleGrid : MonoBehaviour
         return connected;
     }
 
+    /// <summary>Removes all bubbles that are not connected to the top row.</summary>
     public void RemoveFloatingBubbles()
     {
         HashSet<Vector2Int> connected = FindConnectedToTop();
@@ -156,8 +157,6 @@ public class BubbleGrid : MonoBehaviour
                 if (bubbles[row, col] != null && !connected.Contains(pos))
                 {
                     Bubble objectBubble = bubbles[row, col].GetComponent<Bubble>();
-                    //objectBubble.isFloating = true;
-                    
                     Debug.Log("removing floating bubble at: " + pos);
                     objectBubble.isFloating = true;
                     bubbles[row, col] = null;
@@ -165,5 +164,4 @@ public class BubbleGrid : MonoBehaviour
             }
         }
     }
-
 }

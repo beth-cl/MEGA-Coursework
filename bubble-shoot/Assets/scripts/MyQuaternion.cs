@@ -9,10 +9,10 @@ public static class MyQuaternion
         float half = radians * 0.5f;
         float sin = Mathf.Sin(half);
         float cos = Mathf.Cos(half);
-        // Quaternion(x, y, z, w) for rotation around Z axis
         return new Quaternion(0f, 0f, sin, cos);
     }
 
+    ///<summary>Creates a Quaternion representing any rotation around the X Y or Z axis by the given angle in degrees.</summary>
     public static Quaternion EulerXYZ(float xDegrees, float yDegrees, float zDegrees)
     {
         float xRad = xDegrees * Mathf.Deg2Rad;
@@ -26,7 +26,6 @@ public static class MyQuaternion
         float cz = Mathf.Cos(zRad * 0.5f);
         float sz = Mathf.Sin(zRad * 0.5f);
 
-        // Quaternion multiplication: q = qZ * qY * qX (XYZ order)
         float w = cx * cy * cz + sx * sy * sz;
         float x = sx * cy * cz - cx * sy * sz;
         float y = cx * sy * cz + sx * cy * sz;
@@ -34,14 +33,4 @@ public static class MyQuaternion
 
         return new Quaternion(x, y, z, w);
     }
-
-    /*
-     *   -- Euler Angle to Quaternion --
-     *                 *
-     *         q = qz . qy . qx
-     *  qx = (sin(x / 2), 0, 0, cos(x / 2))
-     *  qy = (0, sin(y / 2), 0, cos(y / 2))
-     *  qz = (0, 0, sin(z / 2), cos(z / 2))
-     *  
-     * */
 }

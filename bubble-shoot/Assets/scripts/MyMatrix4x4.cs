@@ -7,16 +7,21 @@ using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class myMatrix4x4
 {
+    /// <summary>Represents the 4x4 matrix values stored as a 2D float array.</summary>
     public float[,] values;
+
+    /// <summary>Returns the identity matrix (4x4).</summary>
     public static myMatrix4x4 Identity
     {
         get
         {
             return new myMatrix4x4(
-                new Vector4(1,0,0,0), new Vector4(0,1,0,0),
-                new Vector4(0,0,1,0), new Vector4(0,0,0,1));
+                new Vector4(1, 0, 0, 0), new Vector4(0, 1, 0, 0),
+                new Vector4(0, 0, 1, 0), new Vector4(0, 0, 0, 1));
         }
     }
+
+    /// <summary>Initializes the matrix using four Vector4 columns.</summary>
     public myMatrix4x4(Vector4 column1, Vector4 column2, Vector4 column3, Vector4 column4)
     {
         values = new float[4, 4];
@@ -41,6 +46,8 @@ public class myMatrix4x4
         values[2, 3] = column4.z;
         values[3, 3] = column4.w;
     }
+
+    /// <summary>Initializes the matrix using four Vector3 columns.</summary>
     public myMatrix4x4(Vector3 column1, Vector3 column2, Vector3 column3, Vector3 column4)
     {
         values = new float[4, 4];
@@ -66,6 +73,7 @@ public class myMatrix4x4
         values[3, 3] = 1f;
     }
 
+    /// <summary>Multiplies a 4x4 matrix with a Vector4.</summary>
     public static Vector4 operator *(myMatrix4x4 lhs, Vector4 vector)
     {
         Vector4 rv = new Vector4();
@@ -74,10 +82,10 @@ public class myMatrix4x4
         rv.z = lhs.values[2, 0] * vector.x + lhs.values[2, 1] * vector.y + lhs.values[2, 2] * vector.z + lhs.values[2, 3] * vector.w;
         rv.w = lhs.values[3, 0] * vector.x + lhs.values[3, 1] * vector.y + lhs.values[3, 2] * vector.z + lhs.values[3, 3] * vector.w;
 
-
         return rv;
     }
 
+    /// <summary>Creates a 2D translation matrix and applies it to a GameObject's mesh vertices.</summary>
     public static void CreateTranslation2D(GameObject transObject, Vector3 translation)
     {
         MeshFilter mf = transObject.GetComponent<MeshFilter>();
@@ -101,7 +109,9 @@ public class myMatrix4x4
         mf.mesh.RecalculateBounds();
         mf.mesh.RecalculateNormals();
     }
-    public static void ApplyCustom2DTranslation(GameObject transObject,MyVector2 translation)
+
+    /// <summary>Applies a custom 2D translation to a GameObject's position.</summary>
+    public static void ApplyCustom2DTranslation(GameObject transObject, MyVector2 translation)
     {
         // Construct 4x4 translation matrix using your custom class (Z = 0 for 2D)
         myMatrix4x4 translationMatrix = new myMatrix4x4(
@@ -116,7 +126,7 @@ public class myMatrix4x4
         transObject.transform.position = newPos;
     }
 
-
+    /// <summary>Creates a 2D rotation matrix.</summary>
     public static myMatrix4x4 CreateRotation2D(float degrees)
     {
         float radians = degrees * Mathf.Deg2Rad;
@@ -130,6 +140,8 @@ public class myMatrix4x4
             new Vector4(0, 0, 0, 1)
         );
     }
+
+    /// <summary>Applies a 2D rotation to a GameObject's position.</summary>
     public static void ApplyRotation2D(GameObject rotateObject, myMatrix4x4 matrix, float degrees)
     {
         myMatrix4x4 rotationMatrix = CreateRotation2D(degrees);
@@ -137,6 +149,7 @@ public class myMatrix4x4
         rotateObject.transform.position = newPos;
     }
 
+    /// <summary>Creates a 2D scaling matrix.</summary>
     public static myMatrix4x4 CreateScale2D(float scaleX, float scaleY)
     {
         return new myMatrix4x4(
@@ -146,5 +159,4 @@ public class myMatrix4x4
             new Vector4(0, 0, 0, 1)
         );
     }
-
 }

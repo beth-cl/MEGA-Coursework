@@ -4,17 +4,16 @@ using UnityEngine;
 
 public class PointerRotation : MonoBehaviour
 {
-    GameObject shooterObject;
-    Vector3[] modelSpaceVerticies;
+    GameObject pivot;
 
     void Start()
     {
-        shooterObject = GameObject.Find("pivot");
+        pivot = GameObject.Find("pivot");
     }
 
     void Update()
     {
-        if (shooterObject != null)
+        if (pivot != null)
         {
             PointToMouse();
         }
@@ -23,9 +22,8 @@ public class PointerRotation : MonoBehaviour
     ///<summary> function to point to the mouse using custom matrix rotation </summary>
     public void PointToMouse()
     {
-
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector3 objectPos = shooterObject.transform.position;
+        Vector3 objectPos = pivot.transform.position;
         MyVector2 direction = new MyVector2(mouseWorldPos.x - objectPos.x, mouseWorldPos.y - objectPos.y);
 
         float angleToMouse = MyVector2.VectorToRadians(direction) * Mathf.Rad2Deg;
@@ -33,8 +31,7 @@ public class PointerRotation : MonoBehaviour
         {
             angleToMouse += 180;
         }
-        //shooterObject.transform.rotation = MyQuaternion.EulerZ(angleToMouse);
-        shooterObject.transform.rotation = MyQuaternion.EulerXYZ(0f, 0f, angleToMouse);
-
+        //pivot.transform.rotation = MyQuaternion.EulerZ(angleToMouse);
+        pivot.transform.rotation = MyQuaternion.EulerXYZ(0f, 0f, angleToMouse);
     }
 }

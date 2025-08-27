@@ -7,78 +7,69 @@ using UnityEngine.UIElements;
 
 public class Bubble : MonoBehaviour
 {
-
-    //Bounding circles-------
-    public BoundingCircle boundingCircle;
-
-    //-----------------------
-
-    public int RandInt;
+    public int colourIndex;
     public bool wasFired = false;
     public List<Bubble> currentconnectedbubbles = new List<Bubble>();
     public bool isFloating = false;
-
     Renderer BubbleRenderer;
     MyVector2 rv;
+    private BubbleGrid bubbleGrid;
 
-    // Start is called before the first frame update
     void Start()
     {
-
-        RandInt = UnityEngine.Random.Range(0, 3);
+        colourIndex = UnityEngine.Random.Range(0, 3);
         BubbleRenderer = GetComponent<Renderer>();
-        Color BubbleColour = RandomBubble(RandInt);
+        Color BubbleColour = RandomBubble(colourIndex);
         BubbleRenderer.material.color = BubbleColour;
         rv = new MyVector2(gameObject.transform.position.x, gameObject.transform.position.y);
+        bubbleGrid = FindObjectOfType<BubbleGrid>();
     }
 
-    // Update is called once per frame  
     void Update()
     {
-        // Check if the bubble is out of bounds of the grid array  
-        BubbleGrid bubbleGrid = FindObjectOfType<BubbleGrid>();
-        MyVector2 gridCoords = bubbleGrid.GetGridCoords(new MyVector2(gameObject.transform.position.x,gameObject.transform.position.y));
-
-
-        /*if (gridCoords.y < 0 || gridCoords.y >= bubbleGrid.bubbles.GetLength(1))
-        {
-            Debug.LogWarning("Bubble is out of bounds and will be destroyed.");
-            Destroy(gameObject);
-        }
-        */
+        MyVector2 gridCoords = bubbleGrid.GetGridCoords(new MyVector2(gameObject.transform.position.x, gameObject.transform.position.y));
         bubbleGrid.RemoveFloatingBubbles();
         gameover();
+
         if (isFloating)
         {
             Collider2D collider = GetComponent<Collider2D>();
             Debug.Log("Bubble is floating");
-            collider.enabled = false; // Disable the collider
-            transform.position = MyVector2.VecLerp(new MyVector2(transform.position.x,transform.position.y), new MyVector2(transform.position.x, -10f), 0.1f);
+            collider.enabled = false;
+            transform.position = MyVector2.VecLerp(new MyVector2(transform.position.x, transform.position.y), new MyVector2(transform.position.x, -10f), 0.1f);
+        }
 
+        if (gameObject.transform.position.y < -6)
+        {
+            Debug.Log("Bubble is out of bounds and will be destroyed.");
+            Destroy(gameObject);
         }
     }
 
-    private Color RandomBubble(int RandInt)
+    /// <summary>Generates a random color for the bubble based on the given random integer.</summary>
+    private Color RandomBubble(int colourIndex)
     {
         Color BubbleType;
-        switch (RandInt)
+        switch (colourIndex)
         {
-            case 0: BubbleType = new Color(242f/255f,163f/255f,89f / 255f); break;
-            case 1: BubbleType = new Color(184f / 255f,51f / 255f,106f / 255f); break;
+            case 0: BubbleType = new Color(242f / 255f, 163f / 255f, 89f / 255f); break;
+            case 1: BubbleType = new Color(184f / 255f, 51f / 255f, 106f / 255f); break;
             case 2: BubbleType = new Color(37f / 255f, 142f / 255f, 166f / 255f); break;
             default: BubbleType = Color.white; break;
         }
         return BubbleType;
     }
 
+    /// <summary>Handles collision events with other objects, such as bubbles or walls.</summary>
     void OnCollisionEnter2D(Collision2D collision)
     {
         MyVector2 TransVector = new MyVector2(gameObject.transform.position.x, gameObject.transform.position.y);
         BubbleGrid bubbleGrid = FindObjectOfType<BubbleGrid>();
+
         if (collision.gameObject.CompareTag("Bubble") || collision.gameObject.CompareTag("Celing"))
         {
             Debug.Log("Bubble Collision Detected " + gameObject.transform.position);
-            MyVector2 snappedPosition = bubbleGrid.GetNearestGridPosition(TransVector); // <------ not working
+            MyVector2 snappedPosition = bubbleGrid.GetNearestGridPosition(TransVector);
             Debug.Log("Snapped Position: " + snappedPosition.x + " " + snappedPosition.y);
             myMatrix4x4.ApplyCustom2DTranslation(gameObject, MyVector2.SubtractingVector2(snappedPosition, TransVector));
             GetComponent<Rigidbody2D>().velocity = Vector2.zero;
@@ -86,7 +77,7 @@ public class Bubble : MonoBehaviour
             GetComponent<Rigidbody2D>().freezeRotation = true;
 
             MyVector2 gridCoords = bubbleGrid.GetGridCoords(snappedPosition);
-            if (!bubbleGrid.bubbles[(int)gridCoords.x, (int)gridCoords.y])
+            if (gridCoords.x >= 0 && gridCoords.x < bubbleGrid.rows && gridCoords.y >= 0 && gridCoords.y < bubbleGrid.columns && bubbleGrid.bubbles[(int)gridCoords.x, (int)gridCoords.y] == null)
             {
                 bubbleGrid.bubbles[(int)gridCoords.x, (int)gridCoords.y] = gameObject;
                 Debug.Log("Bubble assigned to grid position: " + gridCoords);
@@ -101,14 +92,16 @@ public class Bubble : MonoBehaviour
                 TryPopBubbles();
             }
         }
+
         if (collision.gameObject.CompareTag("BubbleBin"))
         {
             Destroy(gameObject);
         }
-        rv = new MyVector2(gameObject.transform.position.x, gameObject.transform.position.y);
 
+        rv = new MyVector2(gameObject.transform.position.x, gameObject.transform.position.y);
     }
 
+    /// <summary>Handles trigger events with walls to reflect the bubble's velocity.</summary>
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("LeftWall") || other.CompareTag("RightWall"))
@@ -120,21 +113,10 @@ public class Bubble : MonoBehaviour
             if (velocity.magnitude > 0.01f)
             {
                 MyVector2 myVelocity = new MyVector2(velocity.x, velocity.y);
-                MyVector2 myNormal = new MyVector2(0f,0f);
-                if (other.CompareTag("LeftWall"))
-                {
-                    myNormal.x = 1f;
-                }
-                else if (other.CompareTag("RightWall"))
-                {
-                    myNormal.x = -1f;
-                }
-                else
-                {
-                    Debug.LogWarning("Unexpected wall collision detected.");
-                }
                 
-                MyVector2 MyReflectedVelocity = MyVector2.ReflectVector(myVelocity, myNormal);
+                
+
+                MyVector2 MyReflectedVelocity = MyVector2.ReflectVector(myVelocity);
                 Vector2 reflectedVelocity = MyReflectedVelocity.ToUnityVector();
 
                 rb.velocity = reflectedVelocity;
@@ -146,6 +128,7 @@ public class Bubble : MonoBehaviour
         }
     }
 
+    /// <summary>Checks for game over conditions and triggers the game over panel if necessary.</summary>
     void gameover()
     {
         GameObject GOshooter = GameObject.Find("Spawner");
@@ -162,12 +145,12 @@ public class Bubble : MonoBehaviour
                 if (panelScript != null)
                 {
                     panelScript.GameOverFlag = true;
-
                 }
             }
         }
     }
 
+    /// <summary>Finds all bubbles connected to this bubble within a certain radius.</summary>
     public List<Bubble> GetConnectedBubbles()
     {
         List<Bubble> connectedBubbles = new List<Bubble>();
@@ -176,7 +159,7 @@ public class Bubble : MonoBehaviour
         foreach (Collider2D hit in hits)
         {
             Bubble bubble = hit.GetComponent<Bubble>();
-            if (bubble != null && bubble.RandInt == this.RandInt)
+            if (bubble != null && bubble.colourIndex == this.colourIndex)
             {
                 connectedBubbles.Add(bubble);
             }
@@ -185,6 +168,7 @@ public class Bubble : MonoBehaviour
         return connectedBubbles;
     }
 
+    /// <summary>Finds all bubbles that match the color of this bubble and are connected.</summary>
     public List<Bubble> FindMatchingBubbles()
     {
         List<Bubble> matchingBubbles = new List<Bubble>();
@@ -192,7 +176,6 @@ public class Bubble : MonoBehaviour
 
         toCheck.Enqueue(this);
         matchingBubbles.Add(this);
-
 
         while (toCheck.Count > 0)
         {
@@ -211,6 +194,7 @@ public class Bubble : MonoBehaviour
         return matchingBubbles;
     }
 
+    /// <summary>Attempts to pop bubbles if there are at least three matching bubbles connected.</summary>
     public void TryPopBubbles()
     {
         List<Bubble> matchingBubbles = FindMatchingBubbles();
@@ -224,20 +208,22 @@ public class Bubble : MonoBehaviour
             }
         }
     }
+
+    /// <summary>Delays the popping of bubbles by a short duration.</summary>
     IEnumerable DelayedPopBubbles()
     {
-        yield return new WaitForSeconds(0.1f); // Wait 0.1 seconds
+        yield return new WaitForSeconds(0.1f);
 
         if (wasFired)
         {
             TryPopBubbles();
-
         }
     }
 
+    /// <summary>Moves the bubble to a specified position and destroys it after a duration.</summary>
     private IEnumerator MoveAndDestroy()
     {
-        float duration = 2f; // Duration of the movement  
+        float duration = 2f;
         float elapsedTime = 0f;
         MyVector2 startPosition = new MyVector2(gameObject.transform.position.x, gameObject.transform.position.y);
         MyVector2 endPosition = new MyVector2(gameObject.transform.position.x, -10f);
@@ -251,7 +237,6 @@ public class Bubble : MonoBehaviour
             Vector2 currentInterpolated = MyVector2.VecLerp(startPosition, endPosition, t);
             MyVector2 test = new MyVector2(currentInterpolated.x, currentInterpolated.y);
 
-            // Calculate the frame delta
             MyVector2 delta = MyVector2.SubtractingVector2(test, lastPosition);
             myMatrix4x4.ApplyCustom2DTranslation(gameObject, delta);
 
@@ -265,14 +250,11 @@ public class Bubble : MonoBehaviour
         Destroy(gameObject);
     }
 
-
+    /// <summary>Delays the destruction of the bubble by a specified duration.</summary>
+    IEnumerator DelayedDestroy(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Destroy(gameObject);
+    }
 }
 
-/* 
-     C = A(1-t) + Bt
-    -------------------
-    A & B are Vectors
-      t is a scalar
-the result (C) is a Vector
-
- */

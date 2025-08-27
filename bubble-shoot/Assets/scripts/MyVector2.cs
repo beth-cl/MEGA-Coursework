@@ -15,10 +15,8 @@ public class MyVector2
     public static MyVector2 AddingVectors2(MyVector2 vectorA, MyVector2 vectorB)
     {
         MyVector2 vectorC = new MyVector2(0f, 0f);
-
         vectorC.x = vectorA.x + vectorB.x;
         vectorC.y = vectorA.y + vectorB.y;
-
         return vectorC;
     }
 
@@ -26,10 +24,8 @@ public class MyVector2
     public static MyVector2 SubtractingVector2(MyVector2 vectorA, MyVector2 vectorB)
     {
         MyVector2 vectorC = new MyVector2(0f, 0f);
-
         vectorC.x = vectorA.x - vectorB.x;
         vectorC.y = vectorA.y - vectorB.y;
-
         return vectorC;
     }
 
@@ -37,10 +33,8 @@ public class MyVector2
     public UnityEngine.Vector2 ToUnityVector()
     {
         UnityEngine.Vector2 vectorC = new UnityEngine.Vector2();
-
         vectorC.x = x;
         vectorC.y = y;
-
         return vectorC;
     }
 
@@ -50,38 +44,31 @@ public class MyVector2
         float rv;
         rv = x * x + y * y;
         return rv;
-
     }
 
-    ///<summary>innefficient due to use of sqrd but finds the length/magnitude</summary>
+    ///<summary>innefficient due to use of sqrt but finds the length/magnitude</summary>
     public float V2_Length()
     {
         float rv;
         rv = Mathf.Sqrt(x * x + y * y);
         return rv;
-
     }
 
     ///<summary>Create a static function that takes in a vector and a scalar and returns a new vector that has been multiplied by the scalar</summary>
     public static MyVector2 Scaling_Vectors(MyVector2 vectorA, float scalar)
     {
         MyVector2 vector_scaled = new MyVector2(0f, 0f);
-
         vector_scaled.x = vectorA.x * scalar;
         vector_scaled.y = vectorA.y * scalar;
-
         return vector_scaled;
-
     }
 
     ///<summary>Create a static function that takes in a vector and a divisor and returns a new vector that has been divided by the divisor</summary>
     public static MyVector2 Dividing_Vectors(MyVector2 vectorA, float divisor)
     {
         MyVector2 vector_divided = new MyVector2(0f, 0f);
-
         vector_divided.x = vectorA.x / divisor;
         vector_divided.y = vectorA.y / divisor;
-
         return vector_divided;
     }
 
@@ -89,9 +76,7 @@ public class MyVector2
     public static MyVector2 Normalising_Vectors(MyVector2 vectorA)
     {
         MyVector2 vector_normalised = new MyVector2(0f, 0f);
-
         vector_normalised = Dividing_Vectors(vectorA, vectorA.V2_Length());
-
         return vector_normalised;
     }
 
@@ -99,29 +84,24 @@ public class MyVector2
     public static float DotProduct(MyVector2 vectorA, MyVector2 vectorB, bool should_normalise = true)
     {
         float dotProduct = 0f;
-
         MyVector2 vectorA_normalised = new MyVector2(0f, 0f);
         MyVector2 vectorB_normalised = new MyVector2(0f, 0f);
-
         if (should_normalise)
         {
             vectorA_normalised = Normalising_Vectors(vectorA);
             vectorB_normalised = Normalising_Vectors(vectorB);
         }
-
         dotProduct = (vectorA_normalised.x * vectorB_normalised.x + vectorA_normalised.y * vectorB_normalised.y);
-
         return dotProduct;
     }
 
-    ///<summary>Create a static function that takes in two vectors and returns the angle between the two vectors</summary>
-    public static MyVector2 ReflectVector(MyVector2 vector, MyVector2 normal)
+    ///<summary>Create a static function that takes in two vectors and returns the reflected vector</summary>
+    public static MyVector2 ReflectVector(MyVector2 vector)
     {
         MyVector2 reflected = new MyVector2(vector.x * -1, vector.y);// Calculate the reflection vector
         Debug.Log("velocity " + vector.x + " " + vector.y);
         Debug.Log("reflected velocity " + reflected.x + " " + reflected.y);
         //Debug.Break();
-
         return reflected;
     }
 
@@ -132,7 +112,6 @@ public class MyVector2
         MyVector2 C = new MyVector2(0f, 0f);
         C.x = A.y * B.x - A.x * B.y;
         C.y = A.x * B.y - A.y * B.x;
-
         return C;
     }
 
@@ -140,7 +119,6 @@ public class MyVector2
     public static Vector2 VecLerp(MyVector2 A, MyVector2 B, float t)
     {
         MyVector2 r = AddingVectors2(Scaling_Vectors(A, (1f - t)), Scaling_Vectors(B, t));
-
         return r.ToUnityVector();
     }
 
@@ -171,6 +149,5 @@ public class MyVector2
     }
 
     //------------------//
-
 }
 

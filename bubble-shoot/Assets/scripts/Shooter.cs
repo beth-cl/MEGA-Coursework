@@ -4,29 +4,26 @@ using UnityEngine;
 
 public class Shooter : MonoBehaviour
 {
-
     public GameObject BubblePrefab;
     public Vector2 BubbleSpawn;
     public float ShootSpeed = 1f;
-
-    public bool BubbleInSpawn = false; // is there a bubble in the spawn
-
+    public bool BubbleInSpawn = false;
     Rigidbody rb;
-
     GameObject newBubble;
 
     // Update is called once per frame
     void Update()
     {
         GameObject Panel = GameObject.Find("Panel");
-
+        //spawn bubble if no bubble is in the spawner
         if (BubbleInSpawn == false)
         {
-            newBubble = Instantiate(BubblePrefab, BubbleSpawn, Quaternion.identity); //instantiate new bubble
+            newBubble = Instantiate(BubblePrefab, BubbleSpawn, Quaternion.identity);
             Rigidbody2D rb = newBubble.GetComponent<Rigidbody2D>();
             rb.gravityScale = 0; // make sure the bubble doesn't fall
             BubbleInSpawn = true;
         }
+        //shoot the bubble if the mouse is clicked
         if (Input.GetMouseButtonDown(0) && Panel == null)
         {
             shoot_bubble();
@@ -41,45 +38,42 @@ public class Shooter : MonoBehaviour
             newBubble.GetComponent<Rigidbody2D>().freezeRotation = true; // freeze the bubble
             Destroy(newBubble); // destroy the bubble
         }
-
     }
 
+    /// <summary>
+    /// Function to shoot the bubble
+    /// </summary>
     void shoot_bubble()
     {
         //GameObject newBubble = Instantiate(BubblePrefab, BubbleSpawn, Quaternion.identity); //instantiate new bubble
         Rigidbody2D rb = newBubble.GetComponent<Rigidbody2D>(); //get bubbles rigidbody2d
         rb.gravityScale = 1;
         rb.velocity = DirectionMaths(); // assign the vector2 to the rigid body
-
-
-
     }
 
-    void raycastLine()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit))
-        {
-            Debug.DrawLine(ray.origin, hit.point, Color.yellow);// Draw a line from the ray's origin to the hit point
-        }
-    }
-
+    /// <summary>
+    /// get the direction vector of the mouse, normalises it and scales it to the shoot speed
+    /// </summary>
     public Vector2 DirectionMaths()
     {
         MyVector2 camvector = new MyVector2(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y); //location of mouse
         MyVector2 transvector = new MyVector2(transform.position.x, transform.position.y); //location of spawner
 
-        MyVector2 Subvector = MyVector2.SubtractingVector2(camvector, transvector); //subtract the mouse position from the spawner position
-        MyVector2 Normvector = MyVector2.Normalising_Vectors(Subvector); //normalise the vector
+        MyVector2 Subvector = MyVector2.SubtractingVector2(camvector, transvector);
+        MyVector2 Normvector = MyVector2.Normalising_Vectors(Subvector);
+        Debug.Log("Direction Normalised Vector: " + Normvector.x + " " + Normvector.y);
 
-        Normvector = MyVector2.Scaling_Vectors(Normvector, ShootSpeed); //scale the normalised vector
+        Normvector = MyVector2.Scaling_Vectors(Normvector, ShootSpeed);
 
-        Vector2 direction = Normvector.ToUnityVector(); //convert MyVector2 to Unity Vector2
+        Vector2 direction = Normvector.ToUnityVector();
+        Debug.Log("Direction: " + direction.x + " " + direction.y);
 
         return direction;
     }
 
+    /// <summary>
+    /// delay so that bubbles dont overlap
+    /// </summary>
     IEnumerator DelayedAction()
     {
         yield return new WaitForSeconds(0.2f); // Wait for 2 seconds
